@@ -1,0 +1,61 @@
+@font-face {
+    
+    font-family: 'Merriweather';
+    src: url("Resources/Fonts/Merriweather/Merriweather-Regular.ttf") format("truetype");
+    
+}
+
+
+html {
+    
+    background-color: #112;
+    padding-left: 50px;
+    
+}
+
+main {
+    
+    color: #980;
+    font-family: 'Merriweather';
+    
+}
+
+/* ruleset of main parent element */
+
+#par {
+    
+    display: flex;
+    flex-direction: column;
+    
+}
+
+/* table rulesets */
+
+#bigtable {
+    
+    display: flex;
+    flex-direction: column;
+    
+}
+
+#smalltable {
+    
+    display: flex;
+    flex-direction: row;
+    text-align: center;
+
+}
+
+tr {
+    
+    display: flex;
+    flex-direction: column;
+    padding: 5px;
+    
+}
+
+tc {
+    
+    padding: 3px;
+    
+}
