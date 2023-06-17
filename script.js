@@ -10,7 +10,7 @@ const federal_funds = `https://www.alphavantage.co/query?function=FEDERAL_FUNDS_
 
 const news = symbol == "SPY" ? `https://www.alphavantage.co/query?function=NEWS_SENTIMENT&apikey=DO68WZE2817TOTSX` : `https://www.alphavantage.co/query?function=NEWS_SENTIMENT&tickers=${symbol}&apikey=DO68WZE2817TOTSX`;
 
-const date = new Date();
+const dateGLOBAL = new Date();
 
 // Data fetching and handling portion of code
 
@@ -71,6 +71,26 @@ function loadHTML(text, id) {
 } // end of loadHTML function
 
 
+// function loads date and time onto a header
+function load_time(){
+    
+    const date = new Date();
+    
+    if (document.getElementById('timer')){
+        
+        document.getElementById('head1').removeChild(document.getElementById('timer'));
+
+    } // end of if
+    
+    let h1 = document.createElement('h1');
+    h1.innerHTML = date.getMinutes() >= 10 ? `${date.getMonth()+1}/${date.getDate()}/${date.getFullYear()} ${date.getHours()}:${date.getMinutes()}` : `${date.getMonth()+1}/${date.getDate()}/${date.getFullYear()} ${date.getHours()}:0${date.getMinutes()}`;
+    h1.innerHTML += date.getSeconds() >= 10 ? `:${date.getSeconds()}` : `:0${date.getSeconds()}`;
+    h1.id = 'timer';
+    
+    document.getElementById('head1').appendChild(h1);
+    
+} // end of load_time function
+
 function rf_rate(nums, indata = []){
     
     let rate = nums['data'][0]['value'];
@@ -78,7 +98,8 @@ function rf_rate(nums, indata = []){
     // console.log(`${date.getMonth()+1}/${date.getDate()}/${date.getFullYear()} ${date.getHours()}:${date.getMinutes()}`);
     // console.log(`1-month Federal Funds Rate as of ${nums['data'][0]['date']}: ${rate}%`);
     
-    loadHTML([`${date.getMonth()+1}/${date.getDate()}/${date.getFullYear()} ${date.getHours()}:${date.getMinutes()}`, `1-month Federal Funds Rate as of ${nums['data'][0]['date']}: ${rate}%`], 'par');
+    setInterval(load_time, 1000);
+    loadHTML([`1-month Federal Funds Rate as of ${nums['data'][0]['date']}: ${rate}%`], 'par');
     
     get_data(ticker_prices, quotes, [rate]);
     get_data(news, newsfeed);
@@ -122,9 +143,9 @@ function quotes(nums, indata = []){
     
     let info = new stock_info(prices);
         
-    if (date.getHours() >= 9 && date.getHours() <= 20){
+    if (dateGLOBAL.getHours() >= 9 && dateGLOBAL.getHours() <= 20){
         
-        let t1 = new Trade(prices[0], 20, 20, exp_time(`${date.getHours()}:${date.getMinutes()}`, 0), indata[0]/100, info.reach[0]*70, 5);
+        let t1 = new Trade(prices[0], 20, 20, exp_time(`${dateGLOBAL.getHours()}:${dateGLOBAL.getMinutes()}`, 0), indata[0]/100, info.reach[0]*70, 5);
         t1.loadHTML(10, 5);
         // t1.print();
         
@@ -164,7 +185,7 @@ class stock_info {
 } // end of stock_info class
 
 
-// function return average and sd reach over the given number of minutes for the given symbol over the given number of days
+// function return average and sd reach over the given number of minutes for the given symbol for the whole dataset
 function reach(prices, min){
     
     let r = [];
@@ -211,7 +232,7 @@ function reach(prices, min){
     
 } // end of reach function
 
-
+// function to return annualized standard deviation of minutely logarithmic returns for the whole dataset
 function SD_returns(prices){
     
     let sd = 0;
@@ -370,7 +391,7 @@ let exp_time = (time, day) => {
         
 } // end of exp_time function
       
-// function stores pricing information for a set of call and put contracts for a symbol with specified parameters at a given price, a specified percentage higher over a certain time period, and the same lower
+// class stores pricing information for a set of call and put contracts for a symbol with specified parameters at a given price, a specified percentage higher over a certain time period, and the same lower
 class Trade {
         
     constructor(S, V1, V2, T, R, m, t){
@@ -457,8 +478,10 @@ class Trade {
             c1.className = 'firstcol';
             let c2 = document.createElement("tr");
             let c3 = document.createElement("tr");
+            c3.className = 'pricecol';
             let c4 = document.createElement("tr");
             let c5 = document.createElement("tr");
+            c5.className = 'pricecol';
             
             c1.innerHTML = `<td>${this.initial_underlying}</td>`;
             c1.innerHTML += `<td>${this.final_underlying[0]}</td>`;

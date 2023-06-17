@@ -6,18 +6,33 @@
     
 }
 
+@font-face {
+    
+    font-family: 'Inconsolata';
+    src: url("Resources/Fonts/Inconsolata/Inconsolata-VariableFont_wdth,wght.ttf") format("truetype");
+    
+}
+
+@font-face {
+    
+    font-family: 'SourceCodePro';
+    src: url("Resources/Fonts/Source_Code_Pro/SourceCodePro-VariableFont_wght.ttf") format("truetype");
+    
+}
+
 
 /* rulesets for overarching elements */
 html {
     
     color: #fff;
-    background-color: #112;
+    background-image: url('Resources/Background.jpg');
     padding-left: 50px;
     
 }
 
 header {
     
+    font-family: 'Inconsolata';
     text-align: center;
     
 }
@@ -53,7 +68,8 @@ a:hover {
 #news {
     
     font-size: 12px;
-    background-color: #610;
+    background-color: #003;
+    opacity: 70%;
     border-radius: 15px;
     
     width: 50%;
@@ -74,8 +90,10 @@ a:hover {
 
 #par {
     
-    font-size: 13px;
-    background-color: #610;
+    font-family: 'SourceCodePro';
+    font-size: 12px;
+    background-color: #003;
+    opacity: 90%;
     border-radius: 15px;
     
     padding: 10px;
@@ -101,9 +119,16 @@ a:hover {
 
 }
 
-#firstcol {
+.firstcol {
     
-    padding-right: 30px;
+    padding-right: 100px;
+    padding-left: 90px;
+    
+}
+
+.pricecol {
+    
+    padding-right: 95px;
     
 }
 
@@ -111,12 +136,14 @@ tr {
     
     display: flex;
     flex-direction: column;
-    padding: 5px;
     
 }
 
 td {
     
-    padding: 10px;
+    padding-right: 20px;
+    padding-right: 20px;
+    padding-top: 5px;
+    padding-bottom: 5px;
     
 }
