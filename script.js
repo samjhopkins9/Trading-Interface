@@ -146,13 +146,13 @@ function quotes(nums, indata = []){
     if (dateGLOBAL.getHours() >= 9 && dateGLOBAL.getHours() <= 20){
         
         let t1 = new Trade(prices[0], 20, 20, exp_time(`${dateGLOBAL.getHours()}:${dateGLOBAL.getMinutes()}`, 0), indata[0]/100, info.reach[0]*70, 5);
-        t1.loadHTML(10, 5);
+        t1.loadHTML(7, 8);
         // t1.print();
         
     } else {
         
         let t1 = new Trade(prices[0], 20, 20, exp_time(`9:30`, 0), indata[0]/100, info.reach[0]*70, 5);
-        t1.loadHTML(10, 5);
+        t1.loadHTML(7, 8);
         // t1.print();
         
     } // end of if-else
@@ -496,6 +496,7 @@ class Trade {
             c5.innerHTML = `<td>${this.initial_prices[l-i+2][1]}</td>`;
             c5.innerHTML += `<td>${this.up_prices[l-i+2][1]}</td>`;
             c5.innerHTML += `<td>${this.down_prices[l-i+2][1]}</td>`;
+            c5.innerHTML += `<td>   </td>`
             
              /*
             c1.textContent = `${this.initial_underlying}     ${this.strike_prices[i]}   ${this.initial_prices[i][0]}   ${this.strike_prices[l-i+2]}   ${this.initial_prices[l-i+2][1]}`;
