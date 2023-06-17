@@ -8,6 +8,8 @@ const ticker_prices = `https://www.alphavantage.co/query?function=TIME_SERIES_IN
 
 const federal_funds = `https://www.alphavantage.co/query?function=FEDERAL_FUNDS_RATE&interval=monthly&apikey=DO68WZE2817TOTSX`;
 
+const news = symbol == "SPY" ? `https://www.alphavantage.co/query?function=NEWS_SENTIMENT&apikey=DO68WZE2817TOTSX` : `https://www.alphavantage.co/query?function=NEWS_SENTIMENT&tickers=${symbol}&apikey=DO68WZE2817TOTSX`;
+
 const date = new Date();
 
 // Data fetching and handling portion of code
@@ -51,19 +53,20 @@ function get_data(url, handling_function, indata = []){
     
 } // end of get_data function
 
-function loadHTML(text) {
+// function loads each entry of the given array of text into the element given by the id parameter as 'p' elements
+function loadHTML(text, id) {
     
     let d1 = document.createElement('div');
     
     for (let i=0; i<text.length; i++){
         
         let p = document.createElement('p');
-        p.textContent = text[i];
+        p.innerHTML = text[i];
         d1.appendChild(p);
         
     } // end of for loop
     
-    document.getElementById('par').appendChild(d1);
+    document.getElementById(id).appendChild(d1);
     
 } // end of loadHTML function
 
@@ -75,11 +78,26 @@ function rf_rate(nums, indata = []){
     // console.log(`${date.getMonth()+1}/${date.getDate()}/${date.getFullYear()} ${date.getHours()}:${date.getMinutes()}`);
     // console.log(`1-month Federal Funds Rate as of ${nums['data'][0]['date']}: ${rate}%`);
     
-    loadHTML([`${date.getMonth()+1}/${date.getDate()}/${date.getFullYear()} ${date.getHours()}:${date.getMinutes()}`, `1-month Federal Funds Rate as of ${nums['data'][0]['date']}: ${rate}%`]);
+    loadHTML([`${date.getMonth()+1}/${date.getDate()}/${date.getFullYear()} ${date.getHours()}:${date.getMinutes()}`, `1-month Federal Funds Rate as of ${nums['data'][0]['date']}: ${rate}%`], 'par');
     
     get_data(ticker_prices, quotes, [rate]);
+    get_data(news, newsfeed);
     
 } // end of fed_rate function
+
+function newsfeed (input) {
+    
+    let lines = []
+    
+    for (let i=0; i<10; i++){
+        
+        lines.push(`${input['feed'][i].summary} | <a href=\"${input['feed'][i].url}\" target=\"_BLANK\">${input['feed'][i].source}</a>`);
+        
+    } // end of for loop
+    
+    loadHTML(lines, 'news');
+    
+} // end of newsfeed function
 
 
 // function saves all closing prices for a ticker from least to most recent as an indexed array
@@ -100,7 +118,7 @@ function quotes(nums, indata = []){
       
     } // end of for loop
         
-    loadHTML([nums["Meta Data"]["2. Symbol"]]);
+    loadHTML([nums["Meta Data"]["2. Symbol"]], 'par');
     
     let info = new stock_info(prices);
         
@@ -117,6 +135,8 @@ function quotes(nums, indata = []){
         // t1.print();
         
     } // end of if-else
+    
+    // add code to chart prices
     
         
 } // end of stock function
@@ -136,7 +156,7 @@ class stock_info {
         console.log(`Current price: ${prices[0]}`);
         */
         
-        loadHTML([`Intrinsic volatility over last 1M: ${this.SD_returns*100}%`, `Average / SD 5 minute reach: ${this.reach[0]*100}% / ${this.reach[1]*100}%`, `Targeted movement: ${this.reach[0]*70}% over 5 minutes`, `Current price: ${prices[0]}`]);
+        loadHTML([`Intrinsic volatility over last 1M: ${this.SD_returns*100}%`, `Average / SD 5 minute reach: ${this.reach[0]*100}% / ${this.reach[1]*100}%`, `Targeted movement: ${this.reach[0]*70}% over 5 minutes`, `Current price: ${prices[0]}`], 'par');
         
         
     } // end of stock_info constructor
@@ -422,6 +442,10 @@ class Trade {
         let table = document.createElement("table");
         table.id = "bigtable";
         
+        let head = document.createElement('th');
+        head.innerHTML = `Price +/- ${this.movement*100}% / Strike / Call Price // Strike / Put Price`;
+        table.appendChild(head);
+        
         let l = this.strike_prices.length;
         
         for (let i=start; i<l-end; i++){
@@ -430,6 +454,7 @@ class Trade {
             table2.id = "smalltable";
             
             let c1 = document.createElement("tr");
+            c1.className = 'firstcol';
             let c2 = document.createElement("tr");
             let c3 = document.createElement("tr");
             let c4 = document.createElement("tr");
