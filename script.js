@@ -70,6 +70,16 @@ function loadHTML(text, id) {
     
 } // end of loadHTML function
 
+function clearHTML(element){
+    
+    while (element.firstChild){
+        
+        element.removeChild(element.firstChild);
+        
+    } // end of while loop
+    
+} // end of clearHTML function
+
 
 // function loads date and time onto a header
 function load_time(){
@@ -99,6 +109,7 @@ function rf_rate(nums, indata = []){
     // console.log(`1-month Federal Funds Rate as of ${nums['data'][0]['date']}: ${rate}%`);
     
     setInterval(load_time, 1000);
+    document.getElementById('par').innerHTML += `<h1>Trading</h1>`;
     loadHTML([`1-month Federal Funds Rate as of ${nums['data'][0]['date']}: ${rate}%`], 'par');
     
     get_data(ticker_prices, quotes, [rate]);
@@ -110,7 +121,8 @@ function newsfeed (input) {
     
     let lines = []
     
-    for (let i=0; i<10; i++){
+    document.getElementById('news').innerHTML += `<h1>News</h1>`;
+    for (let i=0; i<15; i++){
         
         lines.push(`${input['feed'][i].summary} | <a href=\"${input['feed'][i].url}\" target=\"_BLANK\">${input['feed'][i].source}</a>`);
         
@@ -143,16 +155,16 @@ function quotes(nums, indata = []){
     
     let info = new stock_info(prices);
         
-    if (dateGLOBAL.getHours() >= 9 && dateGLOBAL.getHours() <= 20){
+    if (dateGLOBAL.getHours() >= 9 && dateGLOBAL.getHours() <= 19){
         
         let t1 = new Trade(prices[0], 20, 20, exp_time(`${dateGLOBAL.getHours()}:${dateGLOBAL.getMinutes()}`, 0), indata[0]/100, info.reach[0]*70, 5);
-        t1.loadHTML(7, 8);
+        t1.loadHTML(12, 3);
         // t1.print();
         
     } else {
         
         let t1 = new Trade(prices[0], 20, 20, exp_time(`9:30`, 0), indata[0]/100, info.reach[0]*70, 5);
-        t1.loadHTML(7, 8);
+        t1.loadHTML(12, 3);
         // t1.print();
         
     } // end of if-else
@@ -519,4 +531,6 @@ class Trade {
 // Running portion of code
                      
                  
-get_data(federal_funds, rf_rate);
+setInterval(get_data(federal_funds, rf_rate), 60000);
+setInterval(clearHTML(document.getElementById('par')), 60000);
+setInterval(clearHTML(document.getElementById('news')), 60000);
