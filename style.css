@@ -26,7 +26,6 @@ html {
     
     color: #fff;
     background-image: url('Resources/Background.jpg');
-    padding-left: 50px;
     
 }
 
@@ -73,10 +72,19 @@ a:hover {
     border-radius: 15px;
     
     padding: 1%;
-    width: 60%;
+    width: 30%;
     position: relative;
-    left: 3%;
+    left: 2%;
+    
+    
 
+}
+
+#stories {
+    
+    display: flex;
+    flex-direction: row;
+    
 }
 
 #news:p {
@@ -84,6 +92,27 @@ a:hover {
     padding-bottom: 30px;
     padding-left: 5px;
     padding-right: 5px;
+    
+}
+
+
+/* ruleset of the music element */
+
+#music {
+    
+    background-color: #33000080;
+    border-radius: 15px;
+    
+    width: 30%;
+    position: relative;
+    left: 4%;
+    padding-left: 25px;
+    padding-right: 25px;
+}
+
+#music iframe {
+    
+    opacity: 100%;
     
 }
 
@@ -100,7 +129,7 @@ a:hover {
     
     font-family: 'SourceCodePro';
     font-size: 12px;
-    background-color: #003;
+    background-color: #010011;
     opacity: 95%;
     border-radius: 15px;
     

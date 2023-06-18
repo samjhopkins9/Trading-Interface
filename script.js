@@ -119,16 +119,22 @@ function rf_rate(nums, indata = []){
 
 function newsfeed (input) {
     
-    let lines = []
+    let lines = [];
+    let images = [];
     
     document.getElementById('news').innerHTML += `<h1>News</h1>`;
-    for (let i=0; i<15; i++){
+    for (let i=0; i<10; i++){
         
         lines.push(`${input['feed'][i].summary} | <a href=\"${input['feed'][i].url}\" target=\"_BLANK\">${input['feed'][i].source}</a>`);
+        images.push(`<img src=\"${input['feed'][i].banner_image}\" width='66' height='46'></img>`);
         
     } // end of for loop
     
-    loadHTML(lines, 'news');
+    let stories = document.createElement('div');
+    stories.id = 'stories';
+    document.getElementById('news').appendChild(stories);
+    loadHTML(lines, 'stories');
+    loadHTML(images, 'stories');
     
 } // end of newsfeed function
 
@@ -145,13 +151,21 @@ function quotes(nums, indata = []){
     } // end of for loop
   
     let prices = [];
+    let i = 0;
+    var lastupdate;
     for (const d of keys){
       
         prices.push(parseFloat(nums[`Time Series (${interval})`][d]["4. close"]));
+        if (i === 0) {
+            
+            lastupdate = d;
+            i++;
+            
+        } // end of if
       
     } // end of for loop
         
-    loadHTML([nums["Meta Data"]["2. Symbol"]], 'par');
+    loadHTML([ `${nums["Meta Data"]["2. Symbol"]} (last updated ${lastupdate})`], 'par');
     
     let info = new stock_info(prices);
         
@@ -188,6 +202,9 @@ class stock_info {
         console.log(`Targeted movement: ${this.reach[0]*70}% over 5 minutes`);
         console.log(`Current price: ${prices[0]}`);
         */
+        
+
+        
         
         loadHTML([`Intrinsic volatility over last 1M: ${this.SD_returns*100}%`, `Average / SD 5 minute reach: ${this.reach[0]*100}% / ${this.reach[1]*100}%`, `Targeted movement: ${this.reach[0]*70}% over 5 minutes`, `Current price: ${prices[0]}`], 'par');
         
