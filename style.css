@@ -140,6 +140,13 @@ a:hover {
     
 }
 
+#child {
+    
+    display: flex;
+    flex-direction: column;
+    
+}
+
 /* table rulesets */
 
 #bigtable {

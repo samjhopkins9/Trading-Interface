@@ -70,7 +70,19 @@ function loadHTML(text, id) {
     
 } // end of loadHTML function
 
+function createForm(){
+    
+    
+     
+} // end of createForm function
+
 function clearHTML(element){
+    
+    if (!element){
+        
+        return;
+        
+    } // end of if
     
     while (element.firstChild){
         
@@ -123,7 +135,7 @@ function newsfeed (input) {
     let images = [];
     
     document.getElementById('news').innerHTML += `<h1>News</h1>`;
-    for (let i=0; i<10; i++){
+    for (let i=0; i<20; i++){
         
         lines.push(`${input['feed'][i].summary} | <a href=\"${input['feed'][i].url}\" target=\"_BLANK\">${input['feed'][i].source}</a>`);
         images.push(`<img src=\"${input['feed'][i].banner_image}\" width='66' height='46'></img>`);
@@ -134,7 +146,7 @@ function newsfeed (input) {
     stories.id = 'stories';
     document.getElementById('news').appendChild(stories);
     loadHTML(lines, 'stories');
-    loadHTML(images, 'stories');
+    // loadHTML(images, 'stories');
     
 } // end of newsfeed function
 
@@ -164,24 +176,96 @@ function quotes(nums, indata = []){
         } // end of if
       
     } // end of for loop
-        
+    
+    
     loadHTML([ `${nums["Meta Data"]["2. Symbol"]} (last updated ${lastupdate})`], 'par');
     
-    let info = new stock_info(prices);
+    let SD_returns = SDreturns(prices, 5000);
+    loadHTML([`Volatility over last 1M: ${(SD_returns*100).toFixed(2)}%`, `(annualized standard deviation of minutely log returns for the last month)`], 'par');
+    
+    let child = document.createElement('div');
+    child.id = 'child';
+    
+    
+    let slider = document.createElement("input");
+    slider.type = "range";
+    slider.min = "1";
+    slider.max = "20";
+    slider.value = "5";
+    slider.id = "minutes1";
+    document.getElementById('par').appendChild(slider);
+    
+    slider.addEventListener("input", function (event) {
+       
+        slider.value = event.target.value;
+        clearHTML(child);
+        load_prices();
         
-    if (dateGLOBAL.getHours() >= 9 && dateGLOBAL.getHours() <= 19){
+    });
+    
+    
+    let ivslider = document.createElement("input");
+    ivslider.type = "range";
+    ivslider.min = "5";
+    ivslider.max = "50";
+    ivslider.value = "20";
+    ivslider.id = "ivslider";
+    
+    
+    load_prices();
+    
+    function load_prices() {
         
-        let t1 = new Trade(prices[0], 20, 20, exp_time(`${dateGLOBAL.getHours()}:${dateGLOBAL.getMinutes()}`, 0), indata[0]/100, info.reach[0]*70, 5);
-        t1.loadHTML(12, 3);
-        // t1.print();
+        document.getElementById('par').appendChild(child);
         
-    } else {
+        let min = parseInt(slider.value);
         
-        let t1 = new Trade(prices[0], 20, 20, exp_time(`9:30`, 0), indata[0]/100, info.reach[0]*70, 5);
-        t1.loadHTML(12, 3);
-        // t1.print();
+        let reach = Reach(prices, min);
         
-    } // end of if-else
+        loadHTML([`Minutes to trade: ${min}`, `Average / SD ${min} minute reach: ${(reach[0]*100).toFixed(4)}% / ${(reach[1]*100).toFixed(4)}%`, `(largest deviation from a pricepoint within the following ${min} minutes)`, `Targeted movement: ${(reach[0]*70).toFixed(4)}% over ${min} minutes (70% of average reach)`], 'child');
+        
+        let child2 = document.createElement('div');
+        child2.id = "child2";
+        
+        document.getElementById('child').appendChild(ivslider);
+        
+        ivslider.addEventListener("input", function(event) {
+           
+            ivslider.value = event.target.value;
+            clearHTML(child2);
+            load_ladders();
+            
+        });
+        
+        load_ladders();
+        
+        function load_ladders() {
+            
+            document.getElementById('child').appendChild(child2);
+            
+            let iv = parseFloat(ivslider.value);
+            
+            loadHTML([`Implied volatility of contracts: ${iv}%`, `Current price: ${prices[0]}`], 'child2');
+            
+            if (dateGLOBAL.getHours() >= 9 && dateGLOBAL.getHours() <= 19){
+                
+                // make minutes, volatility changeable using document elements
+                let t1 = new Trade(prices[0], iv, iv, exp_time(`${dateGLOBAL.getHours()}:${dateGLOBAL.getMinutes()}`, 0), indata[0]/100, reach[0]*70, min);
+                t1.loadHTML(12, 3);
+                // t1.print();
+                
+            } else {
+                
+                let t1 = new Trade(prices[0], iv, iv, exp_time(`9:30`, 0), indata[0]/100, reach[0]*70, min);
+                t1.loadHTML(12, 3);
+                // t1.print();
+                
+            } // end of if-else
+            
+        } // end of load_ladders function
+
+        
+    } // end of load_prices function
     
     // add code to chart prices
     
@@ -189,33 +273,8 @@ function quotes(nums, indata = []){
 } // end of stock function
 
 
-class stock_info {
-    
-    constructor(prices){
-        
-        this.reach = reach(prices, 5);
-        this.SD_returns = SD_returns(prices, 5000);
-        
-        /*
-        console.log(`Intrinsic volatility over last 1M: ${this.SD_returns*100}%`);
-        console.log(`Average / SD 5 minute reach: ${this.reach[0]*100}% / ${this.reach[1]*100}%`);
-        console.log(`Targeted movement: ${this.reach[0]*70}% over 5 minutes`);
-        console.log(`Current price: ${prices[0]}`);
-        */
-        
-
-        
-        
-        loadHTML([`Intrinsic volatility over last 1M: ${this.SD_returns*100}%`, `Average / SD 5 minute reach: ${this.reach[0]*100}% / ${this.reach[1]*100}%`, `Targeted movement: ${this.reach[0]*70}% over 5 minutes`, `Current price: ${prices[0]}`], 'par');
-        
-        
-    } // end of stock_info constructor
-    
-} // end of stock_info class
-
-
 // function return average and sd reach over the given number of minutes for the given symbol for the whole dataset
-function reach(prices, min){
+function Reach(prices, min){
     
     let r = [];
         
@@ -262,7 +321,7 @@ function reach(prices, min){
 } // end of reach function
 
 // function to return annualized standard deviation of minutely logarithmic returns for the whole dataset
-function SD_returns(prices){
+function SDreturns(prices){
     
     let sd = 0;
     
@@ -493,7 +552,7 @@ class Trade {
         table.id = "bigtable";
         
         let head = document.createElement('th');
-        head.innerHTML = `Price +/- ${this.movement*100}% / Strike / Call Price // Strike / Put Price`;
+        head.innerHTML = `Price +/- ${(this.movement*100).toFixed(4)}% / Strike / Call Price // Strike / Put Price`;
         table.appendChild(head);
         
         let l = this.strike_prices.length;
@@ -538,7 +597,7 @@ class Trade {
 
         } // end of for loop
         
-        document.getElementById("par").appendChild(table);
+        document.getElementById("child2").appendChild(table);
                     
     } // end of loadHTML function
         
