@@ -1,6 +1,7 @@
 // Alpha Vantage API Key - DO68WZE2817TOTSX
 
 // Information determining data to fetch from API
+
 const symbol = "SPY";
 const interval = "1min";
 
@@ -11,6 +12,9 @@ const federal_funds = `https://www.alphavantage.co/query?function=FEDERAL_FUNDS_
 const news = symbol == "SPY" ? `https://www.alphavantage.co/query?function=NEWS_SENTIMENT&apikey=DO68WZE2817TOTSX` : `https://www.alphavantage.co/query?function=NEWS_SENTIMENT&tickers=${symbol}&apikey=DO68WZE2817TOTSX`;
 
 const dateGLOBAL = new Date();
+
+
+// textbox and event listener for symbol
 
 // Data fetching and handling portion of code
 
@@ -120,12 +124,10 @@ function rf_rate(nums, indata = []){
     // console.log(`${date.getMonth()+1}/${date.getDate()}/${date.getFullYear()} ${date.getHours()}:${date.getMinutes()}`);
     // console.log(`1-month Federal Funds Rate as of ${nums['data'][0]['date']}: ${rate}%`);
     
-    setInterval(load_time, 1000);
     document.getElementById('par').innerHTML += `<h1>Trading</h1>`;
     loadHTML([`1-month Federal Funds Rate as of ${nums['data'][0]['date']}: ${rate}%`], 'par');
     
     get_data(ticker_prices, quotes, [rate]);
-    get_data(news, newsfeed);
     
 } // end of fed_rate function
 
@@ -135,16 +137,22 @@ function newsfeed (input) {
     let images = [];
     
     document.getElementById('news').innerHTML += `<h1>News</h1>`;
-    for (let i=0; i<20; i++){
-        
-        lines.push(`${input['feed'][i].summary} | <a href=\"${input['feed'][i].url}\" target=\"_BLANK\">${input['feed'][i].source}</a>`);
-        images.push(`<img src=\"${input['feed'][i].banner_image}\" width='66' height='46'></img>`);
-        
-    } // end of for loop
     
     let stories = document.createElement('div');
     stories.id = 'stories';
     document.getElementById('news').appendChild(stories);
+    
+    for (let i=0; i<10; i++){
+        
+        let div1 = document.createElement('div');
+        div1.className = 'newsstory';
+        div1.innerHTML += `<p>${input['feed'][i].summary} | <a href=\"${input['feed'][i].url}\" target=\"_BLANK\">${input['feed'][i].source}</a></p>`;
+        div1.innerHTML += `<img src=\"${input['feed'][i].banner_image}\" width='66' height='46'></img>`;
+        document.getElementById('stories').appendChild(div1);
+        
+    } // end of for loop
+    
+    
     loadHTML(lines, 'stories');
     // loadHTML(images, 'stories');
     
@@ -606,7 +614,6 @@ class Trade {
                              
 // Running portion of code
                      
-                 
-setInterval(get_data(federal_funds, rf_rate), 60000);
-setInterval(clearHTML(document.getElementById('par')), 60000);
-setInterval(clearHTML(document.getElementById('news')), 60000);
+setInterval(load_time, 1000);
+get_data(federal_funds, rf_rate);
+get_data(news, newsfeed);

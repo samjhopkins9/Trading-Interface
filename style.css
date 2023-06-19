@@ -76,23 +76,38 @@ a:hover {
     position: relative;
     left: 2%;
     
-    
 
 }
 
 #stories {
     
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     
 }
 
-#news:p {
+.newsstory {
     
-    padding-bottom: 30px;
-    padding-left: 5px;
-    padding-right: 5px;
+    padding: 5px;
     
+    display: flex;
+    flex-direction: row;
+        
+}
+
+.newsstory p {
+    
+    width: 80%;
+    padding-left: 1%;
+    padding-right: 1%;
+    
+}
+
+.newsstory img {
+    
+    width: 10%;
+    padding-left: 5%;
+    padding-right: 1%;
 }
 
 
