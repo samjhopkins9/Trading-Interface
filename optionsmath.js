@@ -211,7 +211,7 @@ class Trade {
         this.time = t / 240000; // entered as minutes, calculated as fraction of a year
         // 240000 = number of minutes in a trading year 60*16*250
         
-        this.initial_underlying = S;
+        this.initial_underlying = S.toFixed(2);
         this.final_underlying = [(S+(S*this.movement)).toFixed(2), (S-(S*this.movement)).toFixed(2)];
             
         this.strike_prices = [];
