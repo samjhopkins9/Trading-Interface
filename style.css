@@ -121,8 +121,8 @@ a:hover {
     width: 30%;
     position: relative;
     left: 4%;
-    padding-left: 25px;
-    padding-right: 25px;
+    padding: 1%;
+    
 }
 
 #music iframe {
