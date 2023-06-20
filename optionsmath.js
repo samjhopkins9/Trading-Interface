@@ -81,6 +81,89 @@ function SDreturns(prices){
 } // end of SD_returns function
 
 
+// Calculates the relative strength index over x periods for each line of data
+// The relative strength index calculation most importantly involves dividing the EMA of gains by the EMA of losses, with a weighting of 1/x given towards the most recent gain or loss, for x periods of data
+function RSI(prices, x){
+    
+    let rsi = [];
+    
+    for (let i=0; i<prices.length-x-1; i++){
+        
+        let gain_sum = 0;
+        let loss_sum = 0;
+        
+        let last_gain = 0;
+        let last_loss = 0;
+        
+        // for loop gets sums for calculating average gain from unit i+c+1 to unit i+1
+        // loops from least to most recent, updating last gain and last loss each time a gain or loss is reached
+        for (let c=x; c>0; c--){
+            
+            let change = prices[i+c+1] - prices[i+c];
+            
+            if (change > 0){
+                gain_sum += change;
+                last_gain = change;
+            } // end of if
+            
+            else if (change <= 0){
+                loss_sum += change/-1.0;
+                last_loss = change/-1.0;
+            } // end of else if
+            
+        } // end of for loop
+        
+        // if statement updates last gain or loss to be current gain or loss
+        if (prices[i+1] - prices[i] > 0){
+            last_gain = prices[i+1] - prices[i];
+        } // end of if
+        
+        else if (prices[i+1] - prices[i] <= 0){
+            last_loss = (prices[i+1] - prices[i])/-1.0;
+        } // end of else if
+        
+        let avg_gains = gain_sum/x;
+        let avg_losses = loss_sum/x;
+        let rs = ((x-1)*avg_gains + last_gain) / ((x-1)*avg_losses + last_loss);
+        
+        rsi.push(100-(100/(1+rs)));
+        
+    } // end of for loop
+    
+    return rsi;
+    
+} // end of RSI function
+
+// function generates a random walk over x periods
+function load_randchart(x, init1){
+    
+    let random = [];
+    let initial = init1;
+    
+    for (let i=0; i<x; i++){
+        
+        let flip = Math.floor(Math.random() * 2);
+        if (flip === 0){
+            
+            initial -= (initial*0.0005)
+            
+        } // end of if
+        
+        else {
+            
+            initial += initial*0.0005;
+            
+        } // end of else
+        
+        random.push(initial);
+        
+    } // end of for loop
+    
+    return random;
+    
+} // end of load_randchart function
+
+
 // Black-Scholes portion of code
 
 function normpdf (x){

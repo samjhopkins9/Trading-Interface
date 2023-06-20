@@ -74,7 +74,6 @@ a:hover {
     padding: 1%;
     width: 30%;
     position: relative;
-    left: 2%;
     
 
 }
@@ -125,13 +124,26 @@ a:hover {
     
 }
 
-#pricechart {
+canvas {
     
     background-color: #000000;
-    padding: 2px;
+    padding: 10px;
+    margin: 20px;
     border-radius: 5px;
     border-bottom: 50px;
     border-top: 50px;
+    
+}
+
+#randomchart {
+    
+    title: "New Random Walk";
+    
+}
+
+#randomchart:hover {
+    
+    cursor: pointer;
     
 }
 
@@ -174,6 +186,8 @@ a:hover {
     
     padding: 1%;
     width: 30%;
+    position: relative;
+    left: 2%;
     display: flex;
     flex-direction: column;
     

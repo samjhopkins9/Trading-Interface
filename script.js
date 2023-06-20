@@ -185,23 +185,20 @@ function reload_rate(){
     
 } // end reload_rate function
 
-function load_chart(x_axis, y_axis){
+function load_chart(label1, x_axis, y_axis, id, extra = []){
     
-    document.getElementById('pricechart').remove();
-    let pricechart = document.createElement("canvas");
-    pricechart.id = "pricechart";
-    document.getElementById("chart").appendChild(pricechart);
-    const ctx = pricechart;
-    const x = x_axis.reverse();
-    const y = y_axis.reverse();
+    document.getElementById(id).remove();
+    let mainchart = document.createElement("canvas");
+    mainchart.id = id;
+    const ctx = mainchart;
 
       new Chart(ctx, {
         type: 'line',
         data: {
-          labels: x,
+          labels: x_axis,
           datasets: [{
-            label: 'Price',
-            data: y,
+            label: label1,
+            data: y_axis,
             borderWidth: 1,
             pointRadius: 0.5
           }]
@@ -214,9 +211,23 @@ function load_chart(x_axis, y_axis){
           }
         }
       });
-    y_axis.reverse();
     
-}
+    if (id === "randomchart"){
+        
+        document.getElementById("chart").insertBefore(mainchart, document.getElementById("rsichart"));
+        document.getElementById('randomchart').addEventListener("click", function(event){
+            
+            load_chart("Random Walk (click to refresh)", x_axis, load_randchart(x_axis.length, extra[0]), 'randomchart', [extra[0]]);
+            
+        }); // end of event handler
+        
+        return;
+        
+    } // end of if
+    
+    document.getElementById("chart").appendChild(mainchart);
+    
+} // end of load_chart function
 
 
 // function saves all closing prices for a ticker from least to most recent as an indexed array
@@ -245,12 +256,25 @@ function quotes(nums, indata = []){
       
     } // end of for loop
     
-    load_chart(keys, prices);
+    let rsi_units = 14;
+
+    let rsi = RSI(prices, rsi_units);
+    let rsilabels = [];
     
+    // loop creates new list of date strings with length rsi_units less than full length so axes match in RSI graph
+    for (let i=0; i<keys.length-rsi_units; i++){
+        
+        rsilabels.push(keys[i]);
+        
+    } // end of for loop
+    
+    load_chart(`${nums["Meta Data"]["2. Symbol"]}`, keys.reverse(), prices.reverse(), 'pricechart');
+    load_chart("RSI", rsilabels.reverse(), rsi.reverse(), 'rsichart');
+    load_chart("Random Walk (click to refresh)", keys, load_randchart(keys.length, prices[prices.length-1]), 'randomchart', [prices[prices.length-1]]);
     
     loadHTML([ `${nums["Meta Data"]["2. Symbol"]} (last updated ${lastupdate})`], 'basicinfo');
     
-    let SD_returns = SDreturns(prices, 5000);
+    let SD_returns = SDreturns(prices);
     loadHTML([`Volatility over dataset: ${(SD_returns*100).toFixed(2)}%`, `(annualized standard deviation of minutely log returns)`], 'basicinfo');
             
     let child = document.createElement('div');
