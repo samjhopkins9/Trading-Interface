@@ -285,6 +285,7 @@ function quotes(nums, indata = []){
     ivslider.type = "range";
     ivslider.min = "5";
     ivslider.max = "50";
+    ivslider.step = "0.01";
     ivslider.value = "20";
     ivslider.id = "ivslider";
     
@@ -335,13 +336,13 @@ function quotes(nums, indata = []){
                 
                 // make minutes, volatility changeable using document elements
                 let t1 = new Trade(prices[0], iv, iv, exp_time(`${dateGLOBAL.getHours()}:${dateGLOBAL.getMinutes()}`, 1), indata[0]/100, reach[0]*70, min);
-                t1.loadHTML(12, 3);
+                t1.loadHTML(11, 3);
                 // t1.print();
                 
             } else {
                 
                 let t1 = new Trade(prices[0], iv, iv, exp_time(`9:40`, 0), indata[0]/100, reach[0]*70, min);
-                t1.loadHTML(12, 3);
+                t1.loadHTML(11, 3);
                 // t1.print();
                 
             } // end of if-else

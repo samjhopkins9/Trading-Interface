@@ -41,7 +41,7 @@ function Reach(prices, min){
     
     vari /= r.length;
     
-    return [avg.toFixed(5), Math.sqrt(vari).toFixed(5)];
+    return [avg, Math.sqrt(vari)];
     
 } // end of reach function
 
@@ -76,7 +76,7 @@ function SDreturns(prices){
     
     let ratio = prices.length/14000 // 28000 minutes in full trading month; prices.length many represented in data
     
-    return (sd*Math.sqrt(ratio * 960 * 250)).toFixed(4);
+    return (sd*Math.sqrt(ratio * 960 * 250));
     
 } // end of SD_returns function
 
