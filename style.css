@@ -110,6 +110,30 @@ a:hover {
     padding-right: 1%;
 }
 
+#chart {
+    
+    background-color: #33000080;
+    border-radius: 15px;
+    
+    width: 30%;
+    position: relative;
+    left: 4%;
+    padding: 1%;
+    
+    display: flex;
+    align-items: center;
+    
+}
+
+#pricechart {
+    
+    background-color: #000000;
+    padding: 2px;
+    border-radius: 5px;
+    border-bottom: 50px;
+    border-top: 50px;
+    
+}
 
 /* ruleset of the music element */
 
@@ -120,7 +144,7 @@ a:hover {
     
     width: 30%;
     position: relative;
-    left: 4%;
+    left: 2%;
     padding: 1%;
     
 }

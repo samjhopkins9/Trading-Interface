@@ -76,7 +76,7 @@ function SDreturns(prices){
     
     let ratio = prices.length/28000 // 28000 minutes in full trading month; prices.length many represented in data
     
-    return (sd*Math.sqrt(ratio * 960 * 250)).toFixed(4);
+    return (sd*Math.sqrt(960 * 250)).toFixed(4);
     
 } // end of SD_returns function
 

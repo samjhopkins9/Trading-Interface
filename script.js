@@ -2,19 +2,39 @@
 
 // Information determining data to fetch from API
 
-const symbol = "SPY";
+let symbol = "SPY";
 const interval = "1min";
 
-const ticker_prices = `https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=${symbol}&interval=${interval}&outputsize=full&apikey=DO68WZE2817TOTSX`;
+let ticker_prices = `https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=${symbol}&interval=${interval}&outputsize=full&apikey=DO68WZE2817TOTSX`;
 
 const federal_funds = `https://www.alphavantage.co/query?function=FEDERAL_FUNDS_RATE&interval=monthly&apikey=DO68WZE2817TOTSX`;
 
-const news = symbol == "SPY" ? `https://www.alphavantage.co/query?function=NEWS_SENTIMENT&apikey=DO68WZE2817TOTSX` : `https://www.alphavantage.co/query?function=NEWS_SENTIMENT&tickers=${symbol}&apikey=DO68WZE2817TOTSX`;
+let news = (symbol == "SPY") || (symbol == "QQQ") ? `https://www.alphavantage.co/query?function=NEWS_SENTIMENT&apikey=DO68WZE2817TOTSX` : `https://www.alphavantage.co/query?function=NEWS_SENTIMENT&tickers=${symbol}&apikey=DO68WZE2817TOTSX`;
 
 const dateGLOBAL = new Date();
 
+let rate = 0;
+let date = 0;
 
 // textbox and event listener for symbol
+
+document.getElementById("par").innerHTML += `<div id="parhead"><h1>Trading</h1><input type="text" value="SPY" id="symbolinp"><button id="symbolbutton">Go</button></input></div>`;
+document.getElementById("parhead").style.display = "flex";
+document.getElementById("parhead").style.flexDirection = "row";
+document.getElementById("parhead").style.justifyContent = "space-between";
+
+document.getElementById('news').innerHTML += `<h1>News</h1>`;
+
+document.getElementById("symbolbutton").addEventListener("click", function(event){
+    
+    symbol = document.getElementById("symbolinp").value;
+    ticker_prices = `https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=${symbol}&interval=${interval}&outputsize=full&apikey=DO68WZE2817TOTSX`;
+    news = symbol == "SPY" ? `https://www.alphavantage.co/query?function=NEWS_SENTIMENT&apikey=DO68WZE2817TOTSX` : `https://www.alphavantage.co/query?function=NEWS_SENTIMENT&tickers=${symbol}&apikey=DO68WZE2817TOTSX`;
+    clearHTML(document.getElementById("basicinfo"));
+    clearHTML(document.getElementById("news"));
+    run();
+    
+}); // end of event handler function
 
 // Data fetching and handling portion of code
 
@@ -115,9 +135,7 @@ function newsfeed (input) {
     
     let lines = [];
     let images = [];
-    
-    document.getElementById('news').innerHTML += `<h1>News</h1>`;
-    
+        
     let stories = document.createElement('div');
     stories.id = 'stories';
     document.getElementById('news').appendChild(stories);
@@ -140,17 +158,65 @@ function newsfeed (input) {
 
 function rf_rate(nums, indata = []){
     
-    let rate = nums['data'][0]['value'];
+    rate = nums['data'][0]['value'];
+    date = nums['data'][0]['date'];
         
     // console.log(`${date.getMonth()+1}/${date.getDate()}/${date.getFullYear()} ${date.getHours()}:${date.getMinutes()}`);
     // console.log(`1-month Federal Funds Rate as of ${nums['data'][0]['date']}: ${rate}%`);
     
-    document.getElementById('par').innerHTML += `<h1>Trading</h1>`;
-    loadHTML([`1-month Federal Funds Rate as of ${nums['data'][0]['date']}: ${rate}%`], 'par');
+    let basicinfo = document.createElement('div');
+    basicinfo.id = "basicinfo";
+    
+    document.getElementById("par").appendChild(basicinfo);
+    
+    loadHTML([`1-month Federal Funds Rate as of ${nums['data'][0]['date']}: ${rate}%`], 'basicinfo');
     
     get_data(ticker_prices, quotes, [rate]);
     
 } // end of fed_rate function
+
+function reload_rate(){
+    
+    let basicinfo = document.createElement('div');
+    basicinfo.id = "basicinfo";
+    document.getElementById("par").appendChild(basicinfo);
+    
+    loadHTML([`1-month Federal Funds Rate as of ${date}: ${rate}%`], 'basicinfo');
+    
+} // end reload_rate function
+
+function load_chart(x_axis, y_axis){
+    
+    document.getElementById('pricechart').remove();
+    let pricechart = document.createElement("canvas");
+    pricechart.id = "pricechart";
+    document.getElementById("chart").appendChild(pricechart);
+    const ctx = pricechart;
+    const x = x_axis.reverse();
+    const y = y_axis.reverse();
+
+      new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: x,
+          datasets: [{
+            label: 'Price',
+            data: y,
+            borderWidth: 1,
+            pointRadius: 0.5
+          }]
+        },
+        options: {
+          scales: {
+            y: {
+              beginAtZero: false
+            }
+          }
+        }
+      });
+    y_axis.reverse();
+    
+}
 
 
 // function saves all closing prices for a ticker from least to most recent as an indexed array
@@ -179,11 +245,13 @@ function quotes(nums, indata = []){
       
     } // end of for loop
     
+    load_chart(keys, prices);
     
-    loadHTML([ `${nums["Meta Data"]["2. Symbol"]} (last updated ${lastupdate})`], 'par');
+    
+    loadHTML([ `${nums["Meta Data"]["2. Symbol"]} (last updated ${lastupdate})`], 'basicinfo');
     
     let SD_returns = SDreturns(prices, 5000);
-    loadHTML([`Volatility over last 1M: ${(SD_returns*100).toFixed(2)}%`, `(annualized standard deviation of minutely log returns for the last month)`], 'par');
+    loadHTML([`Volatility over dataset: ${(SD_returns*100).toFixed(2)}%`, `(annualized standard deviation of minutely log returns)`], 'basicinfo');
             
     let child = document.createElement('div');
     child.id = 'child';
@@ -197,11 +265,11 @@ function quotes(nums, indata = []){
     slider.value = "5";
     slider.id = "minutes1";
     
-    document.getElementById('par').appendChild(sliderlabel);
+    document.getElementById("basicinfo").appendChild(sliderlabel);
     let min = parseInt(slider.value);
     sliderlabel.textContent = `Minutes to trade: ${min}`;
 
-    document.getElementById('par').appendChild(slider);
+    document.getElementById('basicinfo').appendChild(slider);
     
     slider.addEventListener("input", function (event) {
        
@@ -227,7 +295,7 @@ function quotes(nums, indata = []){
     
     function load_prices() {
         
-        document.getElementById('par').appendChild(child);
+        document.getElementById('basicinfo').appendChild(child);
         
         min = parseInt(slider.value);
         sliderlabel.textContent = `Minutes to trade: ${min}`;
@@ -266,7 +334,7 @@ function quotes(nums, indata = []){
             if ((dateGLOBAL.getHours() >= 10 && dateGLOBAL.getHours() <= 15) || (dateGLOBAL.getHours() === 9 && dateGLOBAL.getMinutes() >= 30)){
                 
                 // make minutes, volatility changeable using document elements
-                let t1 = new Trade(prices[0], iv, iv, exp_time(`${dateGLOBAL.getHours()}:${dateGLOBAL.getMinutes()}`, 0), indata[0]/100, reach[0]*70, min);
+                let t1 = new Trade(prices[0], iv, iv, exp_time(`${dateGLOBAL.getHours()}:${dateGLOBAL.getMinutes()}`, 1), indata[0]/100, reach[0]*70, min);
                 t1.loadHTML(12, 3);
                 // t1.print();
                 
@@ -290,7 +358,16 @@ function quotes(nums, indata = []){
                      
                              
 // Running portion of code
-                     
+   
 setInterval(load_time, 1000);
 get_data(federal_funds, rf_rate);
 get_data(news, newsfeed);
+
+function run (){
+    
+    reload_rate();
+    get_data(ticker_prices, quotes, [rate]);
+    get_data(news, newsfeed);
+    
+} // end of run function
+
