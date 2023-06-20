@@ -340,7 +340,7 @@ function quotes(nums, indata = []){
                 
             } else {
                 
-                let t1 = new Trade(prices[0], iv, iv, exp_time(`9:40`, 0), indata[0]/100, reach[0]*70, min);
+                let t1 = new Trade(prices[0], iv, iv, exp_time(`9:40`, 1), indata[0]/100, reach[0]*70, min);
                 t1.loadHTML(12, 3);
                 // t1.print();
                 
