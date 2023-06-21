@@ -221,9 +221,13 @@ function reload_rate(){
 // with the extra parameter present to pass the initial price of the underlying into the function when creating a random walk chart
 function load_chart(label1, x_axis, y_axis, id, extra = []){
     
+    // removes canvas with given id, then creates new one
+    // done to prevent error given by reusing same canvas for different charts
     document.getElementById(id).remove();
     let mainchart = document.createElement("canvas");
     mainchart.id = id;
+    
+    // declares a constant ctx as the canvas, and loads a chart onto it
     const ctx = mainchart;
 
       new Chart(ctx, {
@@ -246,6 +250,7 @@ function load_chart(label1, x_axis, y_axis, id, extra = []){
         }
       });
     
+    // if it is the random chart, it always inserts BEFORE the rsi chart and creates an event handler to load a new chart
     if (id === "randomchart"){
         
         document.getElementById("chart").insertBefore(mainchart, document.getElementById("rsichart"));
@@ -259,6 +264,7 @@ function load_chart(label1, x_axis, y_axis, id, extra = []){
         
     } // end of if
     
+    // otherwise, just appends the created chart to the main chart section of the document
     document.getElementById("chart").appendChild(mainchart);
     
 } // end of load_chart function
