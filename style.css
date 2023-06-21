@@ -227,6 +227,12 @@ td {
 
 @media only screen and (max-width: 1000px){
     
+    html {
+        
+        zoom: 150%;
+        
+    }
+    
     main {
         
         flex-direction: column;
