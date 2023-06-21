@@ -9,7 +9,7 @@ let ticker_prices = `https://www.alphavantage.co/query?function=TIME_SERIES_INTR
 
 const federal_funds = `https://www.alphavantage.co/query?function=FEDERAL_FUNDS_RATE&interval=monthly&apikey=DO68WZE2817TOTSX`;
 
-let news = (symbol == "SPY") || (symbol == "QQQ") ? `https://www.alphavantage.co/query?function=NEWS_SENTIMENT&apikey=DO68WZE2817TOTSX` : `https://www.alphavantage.co/query?function=NEWS_SENTIMENT&tickers=${symbol}&apikey=DO68WZE2817TOTSX`;
+let news = (symbol === "SPY") || (symbol === "QQQ") ? `https://www.alphavantage.co/query?function=NEWS_SENTIMENT&apikey=DO68WZE2817TOTSX` : `https://www.alphavantage.co/query?function=NEWS_SENTIMENT&tickers=${symbol}&apikey=DO68WZE2817TOTSX`;
 
 const dateGLOBAL = new Date();
 
@@ -29,7 +29,7 @@ document.getElementById("symbolbutton").addEventListener("click", function(event
     
     symbol = document.getElementById("symbolinp").value;
     ticker_prices = `https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=${symbol}&interval=${interval}&outputsize=full&apikey=DO68WZE2817TOTSX`;
-    news = symbol == (symbol == "SPY") || (symbol == "QQQ") ? `https://www.alphavantage.co/query?function=NEWS_SENTIMENT&apikey=DO68WZE2817TOTSX` : `https://www.alphavantage.co/query?function=NEWS_SENTIMENT&tickers=${symbol}&apikey=DO68WZE2817TOTSX`;
+    news = symbol == (symbol === "SPY") || (symbol === "QQQ") ? `https://www.alphavantage.co/query?function=NEWS_SENTIMENT&apikey=DO68WZE2817TOTSX` : `https://www.alphavantage.co/query?function=NEWS_SENTIMENT&tickers=${symbol}&apikey=DO68WZE2817TOTSX`;
     clearHTML(document.getElementById("basicinfo"));
     clearHTML(document.getElementById("stories"));
     run();
