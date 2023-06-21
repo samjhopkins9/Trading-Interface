@@ -12,8 +12,6 @@ function createWindow() {
 
   win.loadFile('index.html');
 
-  // Uncomment the following line if you want to open the DevTools automatically
-  // win.webContents.openDevTools();
 }
 
 app.whenReady().then(createWindow);

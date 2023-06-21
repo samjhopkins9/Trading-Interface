@@ -1,40 +1,58 @@
 // Alpha Vantage API Key - DO68WZE2817TOTSX
 
+
+
 // Information determining data to fetch from API
 
+// symbol may be changed by program; interval remains constant
 let symbol = "SPY";
 const interval = "1min";
 
+// ticker prices may be changed by program; federal funds rate is constant;
+// news may be changed by program, and will fetch general news if given the symbols of two particular high-option-volume index ETFs, and stock-specific news otherwise
 let ticker_prices = `https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=${symbol}&interval=${interval}&outputsize=full&apikey=DO68WZE2817TOTSX`;
-
 const federal_funds = `https://www.alphavantage.co/query?function=FEDERAL_FUNDS_RATE&interval=monthly&apikey=DO68WZE2817TOTSX`;
-
 let news = (symbol === "SPY") || (symbol === "QQQ") ? `https://www.alphavantage.co/query?function=NEWS_SENTIMENT&apikey=DO68WZE2817TOTSX` : `https://www.alphavantage.co/query?function=NEWS_SENTIMENT&tickers=${symbol}&apikey=DO68WZE2817TOTSX`;
 
+// global date when taking current time in black-scholes calculation
 const dateGLOBAL = new Date();
 
-let rate = 0;
-let date = 0;
+// risk-free interest rate and date from most recent increase saved as global variables
+let rf_dateGLOBAL = 0;
+let rf_rateGLOBAL = 0;
 
-// textbox and event listener for symbol
 
+
+// Textbox and event listener for symbol
+
+// adds "Trading" heading with textbox and button to top of trading section of document
 document.getElementById("par").innerHTML += `<div id="parhead"><h1>Trading</h1><input type="text" value="SPY" id="symbolinp"><button id="symbolbutton">Go</button></input></div>`;
+
+// defines style and spacing rules for header/textbox/button
 document.getElementById("parhead").style.display = "flex";
 document.getElementById("parhead").style.flexDirection = "row";
 document.getElementById("parhead").style.justifyContent = "space-between";
 
-document.getElementById('news').innerHTML += `<h1>News</h1>`;
-
+// event handler updates global info to pertain to entered symbol on click of button
 document.getElementById("symbolbutton").addEventListener("click", function(event){
     
+    // updates symbol to be textbox value
     symbol = document.getElementById("symbolinp").value;
+    
+    // updates global link variables to pertain to textbox value
     ticker_prices = `https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=${symbol}&interval=${interval}&outputsize=full&apikey=DO68WZE2817TOTSX`;
     news = (symbol === "SPY") || (symbol === "QQQ") ? `https://www.alphavantage.co/query?function=NEWS_SENTIMENT&apikey=DO68WZE2817TOTSX` : `https://www.alphavantage.co/query?function=NEWS_SENTIMENT&tickers=${symbol}&apikey=DO68WZE2817TOTSX`;
+    
+    // clears html from main body sections of trading and news
     clearHTML(document.getElementById("basicinfo"));
     clearHTML(document.getElementById("stories"));
+    
+    // reloads html to main body sections of trading and news with new info
     run();
     
 }); // end of event handler function
+
+
 
 // Data fetching and handling portion of code
 
@@ -60,9 +78,11 @@ function get_data(url, handling_function, indata = []){
         .then(data => {
           
             // Process and use the data as needed
-                            
+               
+            // log data to console to see directly what comes from api
             console.log(data);
             
+            // function handles data, several handling functions are defined below for different input streams
             handling_function(data, indata);
             
             
@@ -82,6 +102,7 @@ function loadHTML(text, id) {
     
     let d1 = document.createElement('div');
     
+    // creates a p element for every string in the list, appends it to the new div
     for (let i=0; i<text.length; i++){
         
         let p = document.createElement('p');
@@ -94,6 +115,7 @@ function loadHTML(text, id) {
     
 } // end of loadHTML function
 
+// function checks if an element is in the document, then removes all its children
 function clearHTML(element){
     
     if (!element){
@@ -111,26 +133,34 @@ function clearHTML(element){
 } // end of clearHTML function
 
 
+
 // function loads date and time onto a header
 function load_time(){
     
     const date = new Date();
     
+    // removes timer if it already exists so it can be updated with new time
     if (document.getElementById('timer')){
         
         document.getElementById('head1').removeChild(document.getElementById('timer'));
 
     } // end of if
     
+    // creates header to display full date and time
     let h1 = document.createElement('h1');
+    
+    // ternary operators to check if length of seconds or minutes is less than 10, and if it is, add a "0" to the string before the number to get a full time output
     h1.innerHTML = date.getMinutes() >= 10 ? `${date.getMonth()+1}/${date.getDate()}/${date.getFullYear()} ${date.getHours()}:${date.getMinutes()}` : `${date.getMonth()+1}/${date.getDate()}/${date.getFullYear()} ${date.getHours()}:0${date.getMinutes()}`;
     h1.innerHTML += date.getSeconds() >= 10 ? `:${date.getSeconds()}` : `:0${date.getSeconds()}`;
+    
     h1.id = 'timer';
     
+    // appends clock to header
     document.getElementById('head1').appendChild(h1);
     
 } // end of load_time function
 
+// function loads first 10 stories into the dom
 function newsfeed (input) {
     
     let lines = [];
@@ -156,35 +186,39 @@ function newsfeed (input) {
     
 } // end of newsfeed function
 
+// function loads risk-free interest rate data into dom,
+// then executes function to load stock and option data into the dom using the current rate
 function rf_rate(nums, indata = []){
     
-    rate = nums['data'][0]['value'];
-    date = nums['data'][0]['date'];
-        
-    // console.log(`${date.getMonth()+1}/${date.getDate()}/${date.getFullYear()} ${date.getHours()}:${date.getMinutes()}`);
-    // console.log(`1-month Federal Funds Rate as of ${nums['data'][0]['date']}: ${rate}%`);
+    rf_rateGLOBAL = nums['data'][0]['value'];
+    rf_dateGLOBAL = nums['data'][0]['date'];
     
     let basicinfo = document.createElement('div');
     basicinfo.id = "basicinfo";
     
     document.getElementById("par").appendChild(basicinfo);
     
-    loadHTML([`1-month Federal Funds Rate as of ${nums['data'][0]['date']}: ${rate}%`], 'basicinfo');
+    loadHTML([`1-month Federal Funds Rate as of ${nums['data'][0]['date']}: ${rf_rateGLOBAL}%`], 'basicinfo');
     
-    get_data(ticker_prices, quotes, [rate]);
+    get_data(ticker_prices, quotes, [rf_rateGLOBAL]);
     
 } // end of fed_rate function
 
+// function reloads interest rate into doc using already saved global variable (so new API call does not have to be made)
 function reload_rate(){
     
     let basicinfo = document.createElement('div');
     basicinfo.id = "basicinfo";
     document.getElementById("par").appendChild(basicinfo);
     
-    loadHTML([`1-month Federal Funds Rate as of ${date}: ${rate}%`], 'basicinfo');
+    loadHTML([`1-month Federal Funds Rate as of ${rf_dateGLOBAL}: ${rf_rateGLOBAL}%`], 'basicinfo');
     
 } // end reload_rate function
 
+
+
+// function loads a chart onto the canvas element with the given id, label, x axis data, and y axis labels,
+// with the extra parameter present to pass the initial price of the underlying into the function when creating a random walk chart
 function load_chart(label1, x_axis, y_axis, id, extra = []){
     
     document.getElementById(id).remove();
@@ -230,10 +264,13 @@ function load_chart(label1, x_axis, y_axis, id, extra = []){
 } // end of load_chart function
 
 
-// function saves all closing prices for a ticker from least to most recent as an indexed array
+
+// function saves all closing prices for a ticker from least to most recent as an indexed array,
+// then displays and processes data into volatility indicators and Black-Scholes options prices
 function quotes(nums, indata = []){
     
     let keys = [];
+    
     // loops through data, saves each key in a string in order so values can be printed via loop
     for (const d in nums[`Time Series (${interval})`]){
       
@@ -241,6 +278,7 @@ function quotes(nums, indata = []){
       
     } // end of for loop
   
+    
     let prices = [];
     let i = 0;
     var lastupdate;
@@ -256,6 +294,8 @@ function quotes(nums, indata = []){
       
     } // end of for loop
     
+    
+    // information pertaining to RSI graph is declared
     let rsi_units = 14;
 
     let rsi = RSI(prices, rsi_units);
@@ -268,17 +308,27 @@ function quotes(nums, indata = []){
         
     } // end of for loop
     
+    
+    // loads charts in order, random walk chart always inserts ahead of RSI but otherwise order matters
     load_chart(`${nums["Meta Data"]["2. Symbol"]}`, keys.reverse(), prices.reverse(), 'pricechart');
     load_chart("RSI", rsilabels.reverse(), rsi.reverse(), 'rsichart');
     load_chart("Random Walk (click to refresh)", keys, load_randchart(keys.length, prices[prices.length-1]), 'randomchart', [prices[prices.length-1]]);
     
+    
+    // loads symbol and last update directly from API date into dom
     loadHTML([ `${nums["Meta Data"]["2. Symbol"]} (last updated ${lastupdate})`], 'basicinfo');
     
+    // calculates and loads annualized standard deviation of minutely logarithmic returns for dataset
     let SD_returns = SDreturns(prices);
     loadHTML([`Volatility over dataset: ${(SD_returns*100).toFixed(2)}%`, `(annualized standard deviation of minutely log returns)`], 'basicinfo');
-            
+    
+    
+    // contains all elements controlled by the slider ivslider element, which are also controlled by the slider element
+    // method on options calculator class loads everything on table into "child" html element, which must be initialized and then cleared before every refresh
     let child = document.createElement('div');
-    child.id = 'child';
+    child.id = "child";
+    
+    // sliderlabel for slider controlling number of minutes to trade
     
     let sliderlabel = document.createElement("p");
     
@@ -289,22 +339,28 @@ function quotes(nums, indata = []){
     slider.value = "5";
     slider.id = "minutes1";
     
+    // appended to basicinfo div, right below the interest rate, symbol and price
     document.getElementById("basicinfo").appendChild(sliderlabel);
     let min = parseInt(slider.value);
     sliderlabel.textContent = `Minutes to trade: ${min}`;
 
     document.getElementById('basicinfo').appendChild(slider);
     
+    // event handler sets new value, clears HTML for child element (containing options price table),
+    // updates the HTML with the new value
     slider.addEventListener("input", function (event) {
        
         slider.value = event.target.value;
         clearHTML(child);
         load_prices();
         
-    });
+    }); // end of event handler
+    
+    
+    // ivsliderlabel for ivslider controlling implied volatility of contracts in calculation
     
     let ivsliderlabel = document.createElement('p');
-        
+    
     let ivslider = document.createElement("input");
     ivslider.type = "range";
     ivslider.min = "5";
@@ -313,85 +369,122 @@ function quotes(nums, indata = []){
     ivslider.value = "20";
     ivslider.id = "ivslider";
     
+    // ivsliderlabel and ivslider appended to basicinfo below other slider,
+    // handling function of other executes so information it affects appears above slider
+    document.getElementById('basicinfo').appendChild(ivsliderlabel);
     let iv = parseFloat(ivslider.value);
     ivsliderlabel.textContent = `Implied volatility of contracts: ${iv}%`;
     
+    document.getElementById('basicinfo').appendChild(ivslider);
+    
+    
     load_prices();
     
+    // function appends child element containing everything controlled by slider,
+    // processes and appends processed data to the child element
     function load_prices() {
         
-        document.getElementById('basicinfo').appendChild(child);
-        
+        // updates minute value to be value of slider
         min = parseInt(slider.value);
+        
+        // updates text content for slider label
         sliderlabel.textContent = `Minutes to trade: ${min}`;
         
+        // calculates average reach for the given # minutes over the given dataset
         let reach = Reach(prices, min);
         
-        loadHTML([`Average / SD ${min} minute reach: ${(reach[0]*100).toFixed(4)}% / ${(reach[1]*100).toFixed(4)}%`, `(largest deviation from a pricepoint within the following ${min} minutes)`, `Targeted movement: ${(reach[0]*70).toFixed(4)}% over ${min} minutes (70% of average reach)`], 'child');
+        // div element containing basic text info controlled by minutes slider
+        let childinfo = document.createElement('div');
+        childinfo.id = "childinfo";
+        childinfo.innerHTML = ` <p>Average / SD ${min} minute reach: ${(reach[0]*100).toFixed(4)}% / ${(reach[1]*100).toFixed(4)}%</p>
+                                <p>(largest deviation from a pricepoint within the following ${min} minutes)</p>
+                                <p>Targeted movement: ${(reach[0]*70).toFixed(4)}% over ${min} minutes (70% of average reach)</p>`;
         
-        document.getElementById('child').appendChild(ivsliderlabel);
+        // info controlled by minutes slider is deleted if already present
+        if (document.querySelector("#childinfo")){
+            
+            document.getElementById("childinfo").remove();
+            
+        } // end of if
         
-        let child2 = document.createElement('div');
-        child2.id = "child2";
+         // inserts childinfo controlled by minutes slider into basicinfo section before ivslider
+        document.getElementById('basicinfo').insertBefore(childinfo, ivsliderlabel);
         
-        document.getElementById('child').appendChild(ivslider);
         
+        // event handler sets new value, clears the child element controlled by the slider, then reloads the HTML with the new value
         ivslider.addEventListener("input", function(event) {
            
             ivslider.value = event.target.value;
-            clearHTML(child2);
+            clearHTML(child);
             load_ladders();
             
         });
         
+        
         load_ladders();
         
+        // fucntion appends child element containing everything controlled by ivslider,
+        // processses and appends processed data to child element
         function load_ladders() {
             
-            document.getElementById('child').appendChild(child2);
+            // appends child2 within basicinfo element,
+            // either for first time or after code has been cleared by event handler
+            document.getElementById('basicinfo').appendChild(child);
             
+            // updates implied volatility value as slider value
             iv = parseFloat(ivslider.value);
             
+            // updates text content for slider label
             ivsliderlabel.textContent = `Implied volatility of contracts: ${iv}%`;
             
-            loadHTML([`Current price: ${(prices[0]).toFixed(2)}`], 'child2');
+            // loads current price into child2 element, as p element above table
+            loadHTML([`Current price: ${(prices[prices.length-1]).toFixed(2)}`], 'child');
             
+            
+            // if within trading hours, calculate prices with time to expiry accounting for hours of current day;
+            // if not, calculate 0 day expiry prices for contracts at 9:40 AM
             if ((dateGLOBAL.getHours() >= 10 && dateGLOBAL.getHours() <= 15) || (dateGLOBAL.getHours() === 9 && dateGLOBAL.getMinutes() >= 30)){
                 
-                // make minutes, volatility changeable using document elements
-                let t1 = new Trade(prices[0], iv, iv, exp_time(`${dateGLOBAL.getHours()}:${dateGLOBAL.getMinutes()}`, 1), indata[0]/100, reach[0]*70, min);
+                let t1 = new Trade(prices[prices.length-1], iv, iv, exp_time(`${dateGLOBAL.getHours()}:${dateGLOBAL.getMinutes()}`, 1), indata[0]/100, reach[0]*70, min);
                 t1.loadHTML(11, 3);
                 // t1.print();
                 
             } else {
                 
-                let t1 = new Trade(prices[0], iv, iv, exp_time(`9:40`, 0), indata[0]/100, reach[0]*70, min);
+                let t1 = new Trade(prices[prices.length-1], iv, iv, exp_time(`9:40`, 0), indata[0]/100, reach[0]*70, min);
                 t1.loadHTML(11, 3);
                 // t1.print();
                 
             } // end of if-else
             
         } // end of load_ladders function
-
         
+
     } // end of load_prices function
     
-    // add code to chart prices
-    
         
-} // end of stock function
+} // end of quotes function
                      
-                             
+                         
+
 // Running portion of code
    
+// runs load_time every second to have live-updating clock
 setInterval(load_time, 1000);
+
+// fetches data from federal funds, which includes process to fetch and processes data from stock quotes
 get_data(federal_funds, rf_rate);
+
+// fetches data from newsfeed
 get_data(news, newsfeed);
 
+// reloads interest rate into DOM without re-fetching data, then
+// re-fetches ticker and news data for newly entered symbol
+// run in symbol textbox event handler function
 function run (){
     
     reload_rate();
-    get_data(ticker_prices, quotes, [rate]);
+    get_data(ticker_prices, quotes, [rf_rateGLOBAL]);
     get_data(news, newsfeed);
     
 } // end of run function

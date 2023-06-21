@@ -109,6 +109,10 @@ a:hover {
     padding-right: 1%;
 }
 
+
+
+/* rulesets of chart element and children */
+
 #chart {
     
     background-color: #00002280;
@@ -147,34 +151,8 @@ canvas {
     
 }
 
-/* ruleset of the music element */
 
-#music {
-    
-    background-color: #33000080;
-    border-radius: 15px;
-    
-    width: 30%;
-    position: relative;
-    left: 2%;
-    padding: 1%;
-    
-}
-
-#music iframe {
-    
-    opacity: 100%;
-    
-}
-
-
-/* ruleset of the chart parent element */
-
-
-
-
-
-/* ruleset of stock information parent element */
+/* ruleset of trading element and children */
 
 #par {
     
@@ -200,6 +178,7 @@ canvas {
     
 }
 
+
 /* table rulesets */
 
 #bigtable {
@@ -209,7 +188,7 @@ canvas {
     
 }
 
-#smalltable {
+.smalltable {
     
     display: flex;
     flex-direction: row;

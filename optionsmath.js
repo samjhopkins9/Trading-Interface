@@ -361,7 +361,7 @@ class Trade {
         for (let i=start; i<l-end; i++){
             
             let table2 = document.createElement("table");
-            table2.id = "smalltable";
+            table2.className = "smalltable";
             
             let c1 = document.createElement("tr");
             c1.className = 'firstcol';
@@ -387,18 +387,13 @@ class Trade {
             c5.innerHTML += `<td>${this.down_prices[l-i+2][1]}</td>`;
             c5.innerHTML += `<td>   </td>`
             
-             /*
-            c1.textContent = `${this.initial_underlying}     ${this.strike_prices[i]}   ${this.initial_prices[i][0]}   ${this.strike_prices[l-i+2]}   ${this.initial_prices[l-i+2][1]}`;
-            c2.textContent = `${this.final_underlying[0]}              ${this.up_prices[i][0]}             ${this.up_prices[l-i+2][1]}`;
-            c3.textContent = `${this.final_underlying[1]}              ${this.down_prices[i][0]}             ${this.down_prices[l-i+2][1]}`;
-              */
             
             table2.appendChild(c1); table2.appendChild(c2); table2.appendChild(c3); table2.appendChild(c4); table2.appendChild(c5);
             table.appendChild(table2);
 
         } // end of for loop
         
-        document.getElementById("child2").appendChild(table);
+        document.getElementById("child").appendChild(table);
                     
     } // end of loadHTML function
         
