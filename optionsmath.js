@@ -145,7 +145,7 @@ function load_randchart(x, init1){
         let flip = Math.floor(Math.random() * 2);
         if (flip === 0){
             
-            initial -= (initial*0.0005)
+            initial -= initial*0.0005;
             
         } // end of if
         
