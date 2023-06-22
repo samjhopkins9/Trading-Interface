@@ -180,7 +180,6 @@ function newsfeed (input) {
         
     } // end of for loop
     
-    
     loadHTML(lines, 'stories');
     // loadHTML(images, 'stories');
     
