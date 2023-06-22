@@ -383,6 +383,30 @@ function quotes(nums, indata = []){
     document.getElementById('basicinfo').appendChild(ivslider);
     
     
+    // daystoexplabel for daysslider controlling days to expiry of contracts
+    
+    let daystoexplabel = document.createElement('p');
+    
+    let daysslider = document.createElement("input");
+    daysslider.type = "range";
+    daysslider.value = "1";
+    daysslider.min = "0";
+    daysslider.max = "5";
+    daysslider.id = "daysslider";
+    
+    // daystoexplabel and daysslider appended to basic info below other slider,
+    // handling function executes so other info is appended above slider
+    document.getElementById('basicinfo').appendChild(daystoexplabel);
+    let days = parseInt(daysslider.value);
+    daystoexplabel.textContent = `Days to expiry: ${days}`;
+    
+    document.getElementById('basicinfo').appendChild(daysslider);
+    
+    
+    // loads current price into child2 element, as p element above table
+    loadHTML([`Current price: ${(prices[prices.length-1]).toFixed(2)}`], 'basicinfo');
+    
+    
     load_prices();
     
     // function appends child element containing everything controlled by slider,
@@ -432,35 +456,54 @@ function quotes(nums, indata = []){
         // processses and appends processed data to child element
         function load_ladders() {
             
-            // appends child2 within basicinfo element,
-            // either for first time or after code has been cleared by event handler
-            document.getElementById('basicinfo').appendChild(child);
-            
             // updates implied volatility value as slider value
             iv = parseFloat(ivslider.value);
             
             // updates text content for slider label
             ivsliderlabel.textContent = `Implied volatility of contracts: ${iv}%`;
             
-            // loads current price into child2 element, as p element above table
-            loadHTML([`Current price: ${(prices[prices.length-1]).toFixed(2)}`], 'child');
+            // event handler sets new value, clears child element controlled by sliders, then reloads with the HTML with new value
+            daysslider.addEventListener("input", function(event){
+                
+                daysslider.value = event.target.value;
+                clearHTML(child);
+                load_tables();
+                 
+            }); // end of event handler
             
             
-            // if within trading hours, calculate prices with time to expiry accounting for hours of current day;
-            // if not, calculate 0 day expiry prices for contracts at 9:40 AM
-            if ((dateGLOBAL.getHours() >= 10 && dateGLOBAL.getHours() <= 15) || (dateGLOBAL.getHours() === 9 && dateGLOBAL.getMinutes() >= 30)){
+            load_tables();
+            
+            function load_tables(){
                 
-                let t1 = new Trade(prices[prices.length-1], iv, iv, exp_time(`${dateGLOBAL.getHours()}:${dateGLOBAL.getMinutes()}`, 1), indata[0]/100, reach[0]*70, min);
-                t1.loadHTML(11, 3);
-                // t1.print();
+                // updates days value as slider value
+                days = parseInt(daysslider.value);
                 
-            } else {
+                // updates text content for slider label
+                daystoexplabel.textContent = `Days to expiry: ${days}`;
                 
-                let t1 = new Trade(prices[prices.length-1], iv, iv, exp_time(`9:40`, 0), indata[0]/100, reach[0]*70, min);
-                t1.loadHTML(11, 3);
-                // t1.print();
+                // appends child2 within basicinfo element,
+                // either for first time or after code has been cleared by event handler
+                document.getElementById('basicinfo').appendChild(child);
                 
-            } // end of if-else
+                // if within trading hours, calculate prices with time to expiry accounting for hours of current day;
+                // if not, calculate 0 day expiry prices for contracts at 9:40 AM
+                if ((dateGLOBAL.getHours() >= 10 && dateGLOBAL.getHours() <= 15) || (dateGLOBAL.getHours() === 9 && dateGLOBAL.getMinutes() >= 30)){
+                    
+                    let t1 = new Trade(prices[prices.length-1], iv, iv, exp_time(`${dateGLOBAL.getHours()}:${dateGLOBAL.getMinutes()}`, days), indata[0]/100, reach[0]*70, min);
+                    t1.loadHTML(11, 3);
+                    // t1.print();
+                    
+                } else {
+                    
+                    let t1 = new Trade(prices[prices.length-1], iv, iv, exp_time(`9:30`, days), indata[0]/100, reach[0]*70, min);
+                    t1.loadHTML(11, 3);
+                    // t1.print();
+                    
+                } // end of if-else
+                
+            } // end of load_tables function
+            
             
         } // end of load_ladders function
         

@@ -178,6 +178,12 @@ canvas {
     
 }
 
+input[type="range"] {
+    
+    width: 100%;
+    
+}
+
 
 /* table rulesets */
 
