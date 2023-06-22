@@ -17,6 +17,7 @@
     - style.css: main CSS stylesheet
     - script.js: top-level JS script
     - optionsmath.js: script containing functions for calculating math related to stock prices
+    - stratinfo.js: script containing code for strategy info panel
     - main.js: script containing code to create neutron application window for linked html document
 
     ## How to run
@@ -26,4 +27,4 @@
         * navigate to the project directory in your computer's bash ternminal and type "./node_modules/.bin/electron ."
 
     ## License
-    * GNU General Public License v3.0, Sam Hopkins, June 20, 2023. Updated June 20, 2023.
+    * GNU General Public License v3.0, Sam Hopkins, June 20, 2023. Updated June 22, 2023.
