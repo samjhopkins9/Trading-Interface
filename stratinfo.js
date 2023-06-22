@@ -9,7 +9,7 @@ function hide(){
     
     if (document.getElementById("stratinfo")){
         
-        document.querySelector("body").removeChild(document.getElementById('stratinfo'));
+        document.getElementById("maindiv").removeChild(info);
         document.getElementById("infobutton").innerHTML = `> Show Strategy Info`;
         document.getElementById("infobutton").removeEventListener("click", hide);
         document.getElementById("infobutton").addEventListener("click", show);
@@ -20,7 +20,7 @@ function hide(){
 
 function show () {
     
-    document.querySelector("body").insertBefore(info, document.getElementById('maindiv'));
+    document.getElementById("maindiv").insertBefore(info, document.querySelector("main"));
     document.getElementById("infobutton").innerHTML = `^ Hide Strategy Info`;
     document.getElementById("infobutton").removeEventListener("click", show);
     document.getElementById("infobutton").addEventListener("click", hide);
