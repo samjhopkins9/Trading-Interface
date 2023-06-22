@@ -34,6 +34,7 @@ header {
     font-family: 'Inconsolata';
     text-align: center;
     
+    
 }
 
 main {
@@ -60,6 +61,46 @@ a:hover {
     
 }
 
+
+
+/* rulesets of strategy info section */
+
+#infobutton {
+    
+    background-color: #003a;
+    
+    border-radius: 15px;
+    padding: 10px;
+    
+    position: absolute;
+    right: 1%;
+    top: 1%;
+    
+    
+}
+
+#infobutton:hover {
+    
+    cursor: pointer;
+    
+    background-color: #003e;
+    
+}
+
+#stratinfo {
+    
+    position: absolute;
+    z-index: 2;
+    
+    top: 23%;
+    right: 3.3%;
+    width: 25%;
+    
+    background-color: #001;
+    padding: 10px;
+    border-radius: 5px;
+    
+}
 
 
 /* ruleset of the newsfeed parent element */

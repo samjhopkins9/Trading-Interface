@@ -156,7 +156,7 @@ function load_time(){
     h1.id = 'timer';
     
     // appends clock to header
-    document.getElementById('head1').appendChild(h1);
+    document.getElementById('head1').insertBefore(h1, infobutton);
     
 } // end of load_time function
 
@@ -358,7 +358,7 @@ function quotes(nums, indata = []){
         slider.value = event.target.value;
         clearHTML(child);
         load_prices();
-        
+
     }); // end of event handler
     
     
@@ -382,6 +382,15 @@ function quotes(nums, indata = []){
     
     document.getElementById('basicinfo').appendChild(ivslider);
     
+    // event handler sets new value, clears the child element controlled by the slider, then reloads the HTML with the new value
+    ivslider.addEventListener("input", function(event) {
+       
+        ivslider.value = event.target.value;
+        clearHTML(child);
+        load_prices();
+
+    });
+    
     
     // daystoexplabel for daysslider controlling days to expiry of contracts
     
@@ -401,6 +410,15 @@ function quotes(nums, indata = []){
     daystoexplabel.textContent = `Days to expiry: ${days}`;
     
     document.getElementById('basicinfo').appendChild(daysslider);
+    
+    // event handler sets new value, clears child element controlled by sliders, then reloads with the HTML with new value
+    daysslider.addEventListener("input", function(event){
+        
+        daysslider.value = event.target.value;
+        clearHTML(child);
+        load_prices();
+         
+    }); // end of event handler
     
     
     // loads current price into child2 element, as p element above table
@@ -440,16 +458,6 @@ function quotes(nums, indata = []){
         document.getElementById('basicinfo').insertBefore(childinfo, ivsliderlabel);
         
         
-        // event handler sets new value, clears the child element controlled by the slider, then reloads the HTML with the new value
-        ivslider.addEventListener("input", function(event) {
-           
-            ivslider.value = event.target.value;
-            clearHTML(child);
-            load_ladders();
-            
-        });
-        
-        
         load_ladders();
         
         // fucntion appends child element containing everything controlled by ivslider,
@@ -461,15 +469,6 @@ function quotes(nums, indata = []){
             
             // updates text content for slider label
             ivsliderlabel.textContent = `Implied volatility of contracts: ${iv}%`;
-            
-            // event handler sets new value, clears child element controlled by sliders, then reloads with the HTML with new value
-            daysslider.addEventListener("input", function(event){
-                
-                daysslider.value = event.target.value;
-                clearHTML(child);
-                load_tables();
-                 
-            }); // end of event handler
             
             
             load_tables();
