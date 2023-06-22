@@ -361,6 +361,31 @@ function quotes(nums, indata = []){
 
     }); // end of event handler
     
+    // percslider controlling percentage of reach to capture
+        
+    let percslider = document.createElement("input");
+    percslider.type = "range";
+    percslider.min = "30";
+    percslider.max = "200";
+    percslider.step = "0.01";
+    percslider.value = "70";
+    percslider.id = "percslider";
+    
+    // percslider appended to basicinfo below other slider,
+    // handling function of other executes so information it affects appears above slider
+    let percentage = parseFloat(percslider.value);
+    
+    document.getElementById('basicinfo').appendChild(percslider);
+    
+    // event handler sets new value, clears the child element controlled by the slider, then reloads the HTML with the new value
+    percslider.addEventListener("input", function(event) {
+       
+        percslider.value = event.target.value;
+        clearHTML(child);
+        load_prices();
+
+    });
+    
     
     // ivsliderlabel for ivslider controlling implied volatility of contracts in calculation
     
@@ -398,7 +423,7 @@ function quotes(nums, indata = []){
     
     let daysslider = document.createElement("input");
     daysslider.type = "range";
-    daysslider.value = "1";
+    daysslider.value = "0";
     daysslider.min = "0";
     daysslider.max = "5";
     daysslider.id = "daysslider";
@@ -433,19 +458,30 @@ function quotes(nums, indata = []){
         
         // updates minute value to be value of slider
         min = parseInt(slider.value);
+        percentage = parseFloat(percslider.value);
+        // updates days value as slider value
+        days = parseInt(daysslider.value);
+        // updates implied volatility value as slider value
+        iv = parseFloat(ivslider.value);
+        
         
         // updates text content for slider label
         sliderlabel.textContent = `Minutes to trade: ${min}`;
+        // updates text content for slider label
+        ivsliderlabel.textContent = `Implied volatility of contracts: ${iv}%`;
+        // updates text content for slider label
+        daystoexplabel.textContent = `Days to expiry: ${days}`;
         
         // calculates average reach for the given # minutes over the given dataset
         let reach = Reach(prices, min);
+        let tgt = reach[0]*percentage;
         
         // div element containing basic text info controlled by minutes slider
         let childinfo = document.createElement('div');
         childinfo.id = "childinfo";
         childinfo.innerHTML = ` <p>Average / SD ${min} minute reach: ${(reach[0]*100).toFixed(4)}% / ${(reach[1]*100).toFixed(4)}%</p>
                                 <p>(largest deviation from a pricepoint within the following ${min} minutes)</p>
-                                <p>Targeted movement: ${(reach[0]*70).toFixed(4)}% over ${min} minutes (70% of average reach)</p>`;
+                                <p>Targeted movement: ${tgt.toFixed(4)}% over ${min} minutes (${percentage}% of average reach)</p>`;
         
         // info controlled by minutes slider is deleted if already present
         if (document.querySelector("#childinfo")){
@@ -455,56 +491,27 @@ function quotes(nums, indata = []){
         } // end of if
         
          // inserts childinfo controlled by minutes slider into basicinfo section before ivslider
-        document.getElementById('basicinfo').insertBefore(childinfo, ivsliderlabel);
+        document.getElementById('basicinfo').insertBefore(childinfo, percslider);
         
+        // appends child2 within basicinfo element,
+        // either for first time or after code has been cleared by event handler
+        document.getElementById('basicinfo').appendChild(child);
         
-        load_ladders();
-        
-        // fucntion appends child element containing everything controlled by ivslider,
-        // processses and appends processed data to child element
-        function load_ladders() {
+        // if within trading hours, calculate prices with time to expiry accounting for hours of current day;
+        // if not, calculate 0 day expiry prices for contracts at 9:40 AM
+        if ((dateGLOBAL.getHours() >= 10 && dateGLOBAL.getHours() <= 15) || (dateGLOBAL.getHours() === 9 && dateGLOBAL.getMinutes() >= 30)){
             
-            // updates implied volatility value as slider value
-            iv = parseFloat(ivslider.value);
+            let t1 = new Trade(prices[prices.length-1], iv, iv, exp_time(`${dateGLOBAL.getHours()}:${dateGLOBAL.getMinutes()}`, days), indata[0]/100, reach[0]*percentage, min);
+            t1.loadHTML(11, 3);
+            // t1.print();
             
-            // updates text content for slider label
-            ivsliderlabel.textContent = `Implied volatility of contracts: ${iv}%`;
+        } else {
             
+            let t1 = new Trade(prices[prices.length-1], iv, iv, exp_time(`9:30`, days), indata[0]/100, reach[0]*percentage, min);
+            t1.loadHTML(11, 3);
+            // t1.print();
             
-            load_tables();
-            
-            function load_tables(){
-                
-                // updates days value as slider value
-                days = parseInt(daysslider.value);
-                
-                // updates text content for slider label
-                daystoexplabel.textContent = `Days to expiry: ${days}`;
-                
-                // appends child2 within basicinfo element,
-                // either for first time or after code has been cleared by event handler
-                document.getElementById('basicinfo').appendChild(child);
-                
-                // if within trading hours, calculate prices with time to expiry accounting for hours of current day;
-                // if not, calculate 0 day expiry prices for contracts at 9:40 AM
-                if ((dateGLOBAL.getHours() >= 10 && dateGLOBAL.getHours() <= 15) || (dateGLOBAL.getHours() === 9 && dateGLOBAL.getMinutes() >= 30)){
-                    
-                    let t1 = new Trade(prices[prices.length-1], iv, iv, exp_time(`${dateGLOBAL.getHours()}:${dateGLOBAL.getMinutes()}`, days), indata[0]/100, reach[0]*70, min);
-                    t1.loadHTML(11, 3);
-                    // t1.print();
-                    
-                } else {
-                    
-                    let t1 = new Trade(prices[prices.length-1], iv, iv, exp_time(`9:30`, days), indata[0]/100, reach[0]*70, min);
-                    t1.loadHTML(11, 3);
-                    // t1.print();
-                    
-                } // end of if-else
-                
-            } // end of load_tables function
-            
-            
-        } // end of load_ladders function
+        } // end of if-else
         
 
     } // end of load_prices function

@@ -102,6 +102,13 @@ a:hover {
     
 }
 
+#symbolbutton:hover {
+    
+    background-color: #aaa;
+    cursor: pointer;
+    
+}
+
 
 /* ruleset of the newsfeed parent element */
 
@@ -222,6 +229,12 @@ canvas {
 input[type="range"] {
     
     width: 100%;
+    
+}
+
+input[type="range"]:hover {
+    
+    cursor: pointer;
     
 }
 
