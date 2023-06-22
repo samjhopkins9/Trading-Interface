@@ -53,6 +53,7 @@ main {
 a {
     
     color: #981;
+    transition: 0.1s;
     
 }
 
@@ -85,7 +86,9 @@ a:hover {
     
     cursor: pointer;
     
-    background-color: #003e;
+    background-color: #103e;
+    
+    transition: 0.2s;
     
 }
 
