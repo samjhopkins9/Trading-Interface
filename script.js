@@ -250,9 +250,11 @@ function load_chart(label1, x_axis, y_axis, id, extra = []){
       });
     
     // if it is the random chart, it always inserts BEFORE the rsi chart and creates an event handler to load a new chart
+    // also adds event listener so random chart updates every time it is clicked
     if (id === "randomchart"){
         
-        document.getElementById("chart").insertBefore(mainchart, document.getElementById("rsichart"));
+        document.getElementById("chart").appendChild(mainchart);
+        // document.getElementById("chart").insertBefore(mainchart, document.getElementById("rsichart"));
         document.getElementById('randomchart').addEventListener("click", function(event){
             
             load_chart("Random Walk (click to refresh)", x_axis, load_randchart(x_axis.length, extra[0]), 'randomchart', [extra[0]]);
@@ -316,7 +318,7 @@ function quotes(nums, indata = []){
     
     // loads charts in order, random walk chart always inserts ahead of RSI but otherwise order matters
     load_chart(`${nums["Meta Data"]["2. Symbol"]}`, keys.reverse(), prices.reverse(), 'pricechart');
-    load_chart("RSI", rsilabels.reverse(), rsi.reverse(), 'rsichart');
+    // load_chart("RSI", rsilabels.reverse(), rsi.reverse(), 'rsichart');
     load_chart("Random Walk (click to refresh)", keys, load_randchart(keys.length, prices[prices.length-1]), 'randomchart', [prices[prices.length-1]]);
     
     
