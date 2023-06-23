@@ -23,6 +23,8 @@ let rf_rateGLOBAL = 0;
 
 
 
+
+
 // Textbox and event listener for symbol
 
 // adds "Trading" heading with textbox and button to top of trading section of document
@@ -54,7 +56,10 @@ document.getElementById("symbolbutton").addEventListener("click", function(event
 
 
 
+
+
 // Data fetching and handling portion of code
+
 
 // function fetches and handles data from an API using a url and a data handling function as parameters
 function get_data(url, handling_function, indata = []){
@@ -97,6 +102,7 @@ function get_data(url, handling_function, indata = []){
     
 } // end of get_data function
 
+
 // function loads each entry of the given array of text into the element given by the id parameter as 'p' elements
 function loadHTML(text, id) {
     
@@ -115,6 +121,7 @@ function loadHTML(text, id) {
     
 } // end of loadHTML function
 
+
 // function checks if an element is in the document, then removes all its children
 function clearHTML(element){
     
@@ -131,6 +138,9 @@ function clearHTML(element){
     } // end of while loop
     
 } // end of clearHTML function
+
+
+
 
 
 
@@ -185,6 +195,7 @@ function newsfeed (input) {
     
 } // end of newsfeed function
 
+
 // function loads risk-free interest rate data into dom,
 // then executes function to load stock and option data into the dom using the current rate
 function rf_rate(nums, indata = []){
@@ -203,6 +214,7 @@ function rf_rate(nums, indata = []){
     
 } // end of fed_rate function
 
+
 // function reloads interest rate into doc using already saved global variable (so new API call does not have to be made)
 function reload_rate(){
     
@@ -213,6 +225,9 @@ function reload_rate(){
     loadHTML([`1-month Federal Funds Rate as of ${rf_dateGLOBAL}: ${rf_rateGLOBAL}%`], 'basicinfo');
     
 } // end reload_rate function
+
+
+
 
 
 
@@ -272,9 +287,12 @@ function load_chart(label1, x_axis, y_axis, id, extra = []){
 
 
 
+
+
 // function saves all closing prices for a ticker from least to most recent as an indexed array,
 // then displays and processes data into volatility indicators and Black-Scholes options prices
 function quotes(nums, indata = []){
+    
     
     let keys = [];
     
@@ -285,7 +303,6 @@ function quotes(nums, indata = []){
       
     } // end of for loop
   
-    
     let prices = [];
     let i = 0;
     var lastupdate;
@@ -302,6 +319,7 @@ function quotes(nums, indata = []){
     } // end of for loop
     
     
+    
     // information pertaining to RSI graph is declared
     let rsi_units = 14;
 
@@ -316,10 +334,12 @@ function quotes(nums, indata = []){
     } // end of for loop
     
     
+    
     // loads charts in order, random walk chart always inserts ahead of RSI but otherwise order matters
     load_chart(`${nums["Meta Data"]["2. Symbol"]}`, keys.reverse(), prices.reverse(), 'pricechart');
     load_chart("RSI", rsilabels.reverse(), rsi.reverse(), 'rsichart');
     load_chart("Random Walk (click to refresh)", keys, load_randchart(keys.length, prices[prices.length-1]), 'randomchart', [prices[prices.length-1]]);
+    
     
     
     // loads symbol and last update directly from API date into dom
@@ -328,6 +348,7 @@ function quotes(nums, indata = []){
     // calculates and loads annualized standard deviation of minutely logarithmic returns for dataset
     let SD_returns = SDreturns(prices);
     loadHTML([`Volatility over dataset: ${(SD_returns*100).toFixed(2)}%`, `(annualized standard deviation of minutely log returns)`], 'basicinfo');
+    
     
     
     // contains all elements controlled by the slider ivslider element, which are also controlled by the slider element
@@ -363,6 +384,8 @@ function quotes(nums, indata = []){
 
     }); // end of event handler
     
+    
+    
     // percslider controlling percentage of reach to capture
         
     let percslider = document.createElement("input");
@@ -387,6 +410,7 @@ function quotes(nums, indata = []){
         load_prices();
 
     });
+    
     
     
     // ivsliderlabel for ivslider controlling implied volatility of contracts in calculation
@@ -419,6 +443,7 @@ function quotes(nums, indata = []){
     });
     
     
+    
     // daystoexplabel for daysslider controlling days to expiry of contracts
     
     let daystoexplabel = document.createElement('p');
@@ -448,8 +473,10 @@ function quotes(nums, indata = []){
     }); // end of event handler
     
     
+    
     // loads current price into child2 element, as p element above table
     loadHTML([`Current price: ${(prices[prices.length-1]).toFixed(2)}`], 'basicinfo');
+    
     
     
     load_prices();
@@ -474,9 +501,12 @@ function quotes(nums, indata = []){
         // updates text content for slider label
         daystoexplabel.textContent = `Days to expiry: ${days}`;
         
+        
+        
         // calculates average reach for the given # minutes over the given dataset
         let reach = Reach(prices, min);
         let tgt = reach[0]*percentage;
+        
         
         // div element containing basic text info controlled by minutes slider
         let childinfo = document.createElement('div');
@@ -485,6 +515,7 @@ function quotes(nums, indata = []){
                                 <p>(largest deviation from a pricepoint within the following ${min} minutes)</p>
                                 <p>Targeted movement: ${tgt.toFixed(4)}% over ${min} minutes (${percentage}% of average reach)</p>`;
         
+        
         // info controlled by minutes slider is deleted if already present
         if (document.querySelector("#childinfo")){
             
@@ -492,8 +523,11 @@ function quotes(nums, indata = []){
             
         } // end of if
         
+        
          // inserts childinfo controlled by minutes slider into basicinfo section before ivslider
         document.getElementById('basicinfo').insertBefore(childinfo, percslider);
+        
+        
         
         // appends child2 within basicinfo element,
         // either for first time or after code has been cleared by event handler
@@ -521,7 +555,9 @@ function quotes(nums, indata = []){
         
 } // end of quotes function
                      
-                         
+                  
+
+
 
 // Running portion of code
    
@@ -533,6 +569,8 @@ get_data(federal_funds, rf_rate);
 
 // fetches data from newsfeed
 get_data(news, newsfeed);
+
+
 
 // reloads interest rate into DOM without re-fetching data, then
 // re-fetches ticker and news data for newly entered symbol
