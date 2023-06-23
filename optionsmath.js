@@ -276,7 +276,8 @@ let exp_time = (time, day) => {
             
         } // end of if else
     
-        console.log(add+t);
+    // console.log(add+t);
+        
     return add+t;
         
 } // end of exp_time function
