@@ -197,12 +197,6 @@ canvas {
     
 }
 
-#randomchart {
-    
-    title: "New Random Walk";
-    
-}
-
 #randomchart:hover {
     
     cursor: pointer;
@@ -356,7 +350,7 @@ td {
         
         position: relative;
         right: 10%;
-        down: 10px;
+        top: 10px;
         
     }
     

@@ -259,23 +259,24 @@ let ladder = (S, V1, V2, T, R, range) => {
 // returns time to expiry in hours, given the time of day and days to expiry of a contract
 let exp_time = (time, day) => {
         
-    let t = day*16;
-    let add = 0;
+    let t = day*7.5;
+    let add = 0.0;
         
         if (time[1] === ':'){
             
             let hour = `${time[0]}`
             let minute = `${time[2]}${time[3]}`;
-            add = 20 - (parseInt(hour) + (parseInt(minute)/60));
+            add = 16.0 - (parseFloat(hour) + (parseFloat(minute)/60));
             
         } else {
             
             let hour = `${time[0]}${time[1]}`;
             let minute = `${time[3]}${time[4]}`;
-            add = 20 - (parseInt(hour) + (parseInt(minute)/60));
+            add = 16.0 - (parseFloat(hour) + (parseFloat(minute)/60));
             
         } // end of if else
     
+        console.log(add+t);
     return add+t;
         
 } // end of exp_time function
@@ -288,11 +289,11 @@ class Trade {
         V1 /= 100; // entered as percentage
         V2 /= 100; // entered as percentage
         
-        this.time_exp = T / 4000; // entered as hours, calculated as as fraction of year
-        // 4000 = number of hours in a trading year = 16*250
-        this.movement = m / 100; // entered as a percentage
-        this.time = t / 240000; // entered as minutes, calculated as fraction of a year
-        // 240000 = number of minutes in a trading year 60*16*250
+        this.time_exp = T / 1865.0; // entered as hours, calculated as as fraction of option trading year
+        // 1865 = number of hours in a trading year = 7.5*252
+        this.movement = m / 100.0; // entered as a percentage
+        this.time = t / 113400.0; // entered as minutes, calculated as fraction of an option trading year
+        // 113400 = number of minutes in a trading year 60*7.5*252
         
         this.initial_underlying = S.toFixed(2);
         this.final_underlying = [(S+(S*this.movement)).toFixed(2), (S-(S*this.movement)).toFixed(2)];

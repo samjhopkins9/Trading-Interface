@@ -543,7 +543,7 @@ function quotes(nums, indata = []){
             
         } else {
             
-            let t1 = new Trade(prices[prices.length-1], iv, iv, exp_time(`9:30`, days), indata[0]/100, reach[0]*percentage, min);
+            let t1 = new Trade(prices[prices.length-1], iv, iv, exp_time(`9:30`, days), indata[0]/100.0, reach[0]*percentage, min);
             t1.loadHTML(11, 3);
             // t1.print();
             
