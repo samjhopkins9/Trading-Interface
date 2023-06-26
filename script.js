@@ -28,12 +28,12 @@ let rf_rateGLOBAL = 0;
 // Textbox and event listener for symbol
 
 // adds "Trading" heading with textbox and button to top of trading section of document
-document.getElementById("par").innerHTML += `<div id="parhead"><h1>Trading</h1><input type="text" value="SPY" id="symbolinp"><button id="symbolbutton">Go</button></input></div>`;
+document.getElementById("trading").innerHTML += `<div id="tradingH"><h1>Trading</h1><input type="text" value="SPY" id="symbolinp"><button id="symbolbutton">Go</button></input></div>`;
 
 // defines style and spacing rules for header/textbox/button
-document.getElementById("parhead").style.display = "flex";
-document.getElementById("parhead").style.flexDirection = "row";
-document.getElementById("parhead").style.justifyContent = "space-between";
+document.getElementById("tradingH").style.display = "flex";
+document.getElementById("tradingH").style.flexDirection = "row";
+document.getElementById("tradingH").style.justifyContent = "space-between";
 
 // event handler updates global info to pertain to entered symbol on click of button
 document.getElementById("symbolbutton").addEventListener("click", function(event){
@@ -103,6 +103,7 @@ function get_data(url, handling_function, indata = []){
 } // end of get_data function
 
 
+
 // function loads each entry of the given array of text into the element given by the id parameter as 'p' elements
 function loadHTML(text, id) {
     
@@ -120,6 +121,7 @@ function loadHTML(text, id) {
     document.getElementById(id).appendChild(d1);
     
 } // end of loadHTML function
+
 
 
 // function checks if an element is in the document, then removes all its children
@@ -170,6 +172,8 @@ function load_time(){
     
 } // end of load_time function
 
+
+
 // function loads first 10 stories into the dom
 function newsfeed (input) {
     
@@ -196,6 +200,7 @@ function newsfeed (input) {
 } // end of newsfeed function
 
 
+
 // function loads risk-free interest rate data into dom,
 // then executes function to load stock and option data into the dom using the current rate
 function rf_rate(nums, indata = []){
@@ -206,13 +211,14 @@ function rf_rate(nums, indata = []){
     let basicinfo = document.createElement('div');
     basicinfo.id = "basicinfo";
     
-    document.getElementById("par").appendChild(basicinfo);
+    document.getElementById("trading").appendChild(basicinfo);
     
     loadHTML([`3-month treasury bond yield as of ${nums['data'][0]['date']}: ${rf_rateGLOBAL}%`], 'basicinfo');
     
     get_data(ticker_prices, quotes, [rf_rateGLOBAL]);
     
 } // end of fed_rate function
+
 
 
 // function reloads interest rate into doc using already saved global variable (so new API call does not have to be made)

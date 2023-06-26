@@ -45,6 +45,8 @@ function Reach(prices, min){
     
 } // end of reach function
 
+
+
 // function to return annualized standard deviation of minutely logarithmic returns for the whole dataset
 function SDreturns(prices){
     
@@ -79,6 +81,7 @@ function SDreturns(prices){
     return (sd*Math.sqrt(ratio * 960 * 250));
     
 } // end of SD_returns function
+
 
 
 // Calculates the relative strength index over x periods for each line of data
@@ -134,6 +137,8 @@ function RSI(prices, x){
     
 } // end of RSI function
 
+
+
 // function generates a random walk over x periods
 function load_randchart(x, init1){
     
@@ -162,6 +167,9 @@ function load_randchart(x, init1){
     return random;
     
 } // end of load_randchart function
+
+
+
 
 
 // Black-Scholes portion of code
@@ -220,6 +228,9 @@ function black_scholes_put(S, K, r, sigma, T, q) {
 } // end of black_scholes_put function
 
          
+                     
+                     
+                     
 // code calculating and displaying options prices with certain movements and levels of time decay
 // class stores a call and put price according to a set of the 5 given parameters
 class Strike {
@@ -241,6 +252,7 @@ class Strike {
     
 } // end of Strike class
 
+                     
 
 let ladder = (S, V1, V2, T, R, q, range) => {
         
@@ -256,6 +268,7 @@ let ladder = (S, V1, V2, T, R, q, range) => {
         
 } // end of ladder function
       
+        
                      
 // returns time to expiry in hours, given the time of day and days to expiry of a contract
 let exp_time = (time, day) => {
@@ -277,12 +290,14 @@ let exp_time = (time, day) => {
             
         } // end of if else
     
-    console.log(add+t);
+    // console.log(add+t);
         
     return add+t;
         
 } // end of exp_time function
       
+                     
+                     
 // class stores pricing information for a set of call and put contracts for a symbol with specified parameters at a given price, a specified percentage higher over a certain time period, and the same lower
 class Trade {
         
@@ -297,7 +312,7 @@ class Trade {
         this.time = t / 241920.0; // entered as minutes, calculated as fraction of an option trading year
         // 241920 = number of minutes in a trading year 60*16*252
         
-        console.log(`Inputs: ${S}, ${Math.floor(S)}, ${V1}, ${this.time_exp}, ${R}`);
+        // console.log(`Inputs: ${S}, ${Math.floor(S)}, ${V1}, ${this.time_exp}, ${R}`);
         
         this.initial_underlying = S.toFixed(2);
         this.final_underlying = [(S+(S*this.movement)).toFixed(2), (S-(S*this.movement)).toFixed(2)];
@@ -335,6 +350,7 @@ class Trade {
     } // end of pairs constructor
         
         
+        
     print(){
             
         let l = this.strike_prices.length;
@@ -350,6 +366,7 @@ class Trade {
         console.log();
             
     } // end of print function
+        
         
         
     loadHTML(start, end){
@@ -401,5 +418,6 @@ class Trade {
         document.getElementById("child").appendChild(table);
                     
     } // end of loadHTML function
+        
         
 } // end of pairs class
