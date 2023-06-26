@@ -292,10 +292,10 @@ class Trade {
         V2 /= 100; // entered as percentage
         
         this.time_exp = T / 4032.0; // entered as hours, calculated as as fraction of option trading year
-        // 1865 = number of hours in a trading year = 7.5*252
+        // 4032 = number of hours in a trading year = 16*252
         this.movement = m / 100.0; // entered as a percentage
         this.time = t / 241920.0; // entered as minutes, calculated as fraction of an option trading year
-        // 113400 = number of minutes in a trading year 60*7.5*252
+        // 241920 = number of minutes in a trading year 60*16*252
         
         console.log(`Inputs: ${S}, ${Math.floor(S)}, ${V1}, ${this.time_exp}, ${R}`);
         
