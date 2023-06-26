@@ -191,30 +191,30 @@ function normcdf(x) {
     
 } // end of normcdf function
 
-function d1(S, K, r, sigma, T) {
+function d1(S, K, r, sigma, T, q) {
     
-    return (Math.log(S / K) + (r + 0.5 * sigma * sigma) * T) / (sigma * Math.sqrt(T));
+    return (Math.log(S / K) + (r - q + 0.5 * sigma * sigma) * T) / (sigma * Math.sqrt(T));
     
 } // end of d1 function
 
-function d2(S, K, r, sigma, T) {
+function d2(S, K, r, sigma, T, q) {
     
-    return d1(S, K, r, sigma, T) - sigma * Math.sqrt(T);
+    return d1(S, K, r, sigma, T, q) - sigma * Math.sqrt(T);
     
 } // end of d2 function
 
-function black_scholes_call(S, K, r, sigma, T) {
+function black_scholes_call(S, K, r, sigma, T, q) {
                          
-    let nd1 = normcdf(d1(S, K, r, sigma, T));
-    let nd2 = normcdf(d2(S, K, r, sigma, T));
+    let nd1 = normcdf(d1(S, K, r, sigma, T, q));
+    let nd2 = normcdf(d2(S, K, r, sigma, T, q));
     return S * nd1 - K * Math.exp(-r * T) * nd2;
     
 } // end of black_scholes_call function;
 
-function black_scholes_put(S, K, r, sigma, T) {
+function black_scholes_put(S, K, r, sigma, T, q) {
                          
-    let nd1 = normcdf(-d1(S, K, r, sigma, T));
-    let nd2 = normcdf(-d2(S, K, r, sigma, T));
+    let nd1 = normcdf(-d1(S, K, r, sigma, T, q));
+    let nd2 = normcdf(-d2(S, K, r, sigma, T, q));
     return K * Math.exp(-r * T) * nd2 - S * nd1;
                          
 } // end of black_scholes_put function
@@ -224,7 +224,7 @@ function black_scholes_put(S, K, r, sigma, T) {
 // class stores a call and put price according to a set of the 5 given parameters
 class Strike {
     
-    constructor(S, K, V1, V2, T, R){
+    constructor(S, K, V1, V2, T, R, q){
         
         this.underlying_price = S;
         this.strike_price = K;
@@ -232,22 +232,23 @@ class Strike {
         this.put_volatility = V2;
         this.time = T;
         this.riskfree_rate = R;
+        this.dividend = q;
         
-        this.call_price = black_scholes_call(S, K, R, V1, T);
-        this.put_price = black_scholes_put(S, K, R, V2, T);
+        this.call_price = black_scholes_call(S, K, R, V1, T, q);
+        this.put_price = black_scholes_put(S, K, R, V2, T, q);
         
     } // end of Strike constructor
     
 } // end of Strike class
 
 
-let ladder = (S, V1, V2, T, R, range) => {
+let ladder = (S, V1, V2, T, R, q, range) => {
         
     let l = [];
     
     for (let i=Math.floor(S)-range; i<=Math.floor(S)+range; i++){
             
-        l.push(new Strike(S, i, V1, V2, T, R));
+        l.push(new Strike(S, i, V1, V2, T, R, q));
             
     } // end of for loop
         
@@ -265,18 +266,18 @@ let exp_time = (time, day) => {
         if (time[1] === ':'){
             
             let hour = `${time[0]}`
-            let minute = `${time[2]}${time[3]}`;
-            add = 16.0 - (parseFloat(hour) + (parseFloat(minute)/60));
+            let minute = (time[3]) ? `${time[2]}${time[3]}` : `${time[2]}`;
+            add = 16.15 - (parseFloat(hour) + (parseFloat(minute)/60.0));
             
         } else {
             
             let hour = `${time[0]}${time[1]}`;
-            let minute = `${time[3]}${time[4]}`;
-            add = 16.0 - (parseFloat(hour) + (parseFloat(minute)/60));
+            let minute = (time[4]) ? `${time[3]}${time[4]}` : `${time[3]}`;
+            add = 16.15 - (parseFloat(hour) + (parseFloat(minute)/60.0));
             
         } // end of if else
     
-    // console.log(add+t);
+    console.log(add+t);
         
     return add+t;
         
@@ -285,16 +286,18 @@ let exp_time = (time, day) => {
 // class stores pricing information for a set of call and put contracts for a symbol with specified parameters at a given price, a specified percentage higher over a certain time period, and the same lower
 class Trade {
         
-    constructor(S, V1, V2, T, R, m, t){
+    constructor(S, V1, V2, T, R, q, m, t){
         
         V1 /= 100; // entered as percentage
         V2 /= 100; // entered as percentage
         
-        this.time_exp = T / 1865.0; // entered as hours, calculated as as fraction of option trading year
+        this.time_exp = T / 4032.0; // entered as hours, calculated as as fraction of option trading year
         // 1865 = number of hours in a trading year = 7.5*252
         this.movement = m / 100.0; // entered as a percentage
-        this.time = t / 113400.0; // entered as minutes, calculated as fraction of an option trading year
+        this.time = t / 241920.0; // entered as minutes, calculated as fraction of an option trading year
         // 113400 = number of minutes in a trading year 60*7.5*252
+        
+        console.log(`Inputs: ${S}, ${Math.floor(S)}, ${V1}, ${this.time_exp}, ${R}`);
         
         this.initial_underlying = S.toFixed(2);
         this.final_underlying = [(S+(S*this.movement)).toFixed(2), (S-(S*this.movement)).toFixed(2)];
@@ -304,9 +307,9 @@ class Trade {
         this.up_prices = [[]];
         this.down_prices = [[]];
         
-        var l0 = ladder(S, V1, V2, this.time_exp, R, 10);
-        var l1 = ladder(S+(S*this.movement), V1, V2, this.time_exp-this.time, R, 10);
-        var l2 = ladder(S-(S*this.movement), V1, V2, this.time_exp-this.time, R, 10);
+        var l0 = ladder(S, V1, V2, this.time_exp, R, q, 10);
+        var l1 = ladder(S+(S*this.movement), V1, V2, this.time_exp-this.time, R, q, 10);
+        var l2 = ladder(S-(S*this.movement), V1, V2, this.time_exp-this.time, R, q, 10);
         
         for (let i=0; i<l0.length; i++){
             

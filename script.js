@@ -11,7 +11,7 @@ const interval = "1min";
 // ticker prices may be changed by program; federal funds rate is constant;
 // news may be changed by program, and will fetch general news if given the symbols of two particular high-option-volume index ETFs, and stock-specific news otherwise
 let ticker_prices = `https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=${symbol}&interval=${interval}&outputsize=full&apikey=DO68WZE2817TOTSX`;
-const federal_funds = `https://www.alphavantage.co/query?function=FEDERAL_FUNDS_RATE&interval=monthly&apikey=DO68WZE2817TOTSX`;
+const treasury_yield = `https://www.alphavantage.co/query?function=TREASURY_YIELD&interval=monthly&maturity=3month&apikey=DO68WZE2817TOTSX`;
 let news = (symbol === "SPY") || (symbol === "QQQ") ? `https://www.alphavantage.co/query?function=NEWS_SENTIMENT&apikey=DO68WZE2817TOTSX` : `https://www.alphavantage.co/query?function=NEWS_SENTIMENT&tickers=${symbol}&apikey=DO68WZE2817TOTSX`;
 
 // global date when taking current time in black-scholes calculation
@@ -208,7 +208,7 @@ function rf_rate(nums, indata = []){
     
     document.getElementById("par").appendChild(basicinfo);
     
-    loadHTML([`1-month Federal Funds Rate as of ${nums['data'][0]['date']}: ${rf_rateGLOBAL}%`], 'basicinfo');
+    loadHTML([`3-month treasury bond yield as of ${nums['data'][0]['date']}: ${rf_rateGLOBAL}%`], 'basicinfo');
     
     get_data(ticker_prices, quotes, [rf_rateGLOBAL]);
     
@@ -533,17 +533,20 @@ function quotes(nums, indata = []){
         // either for first time or after code has been cleared by event handler
         document.getElementById('basicinfo').appendChild(child);
         
+        let divyield = symbol == "SPY" ? 0.0151 : 0.0;
+        
         // if within trading hours, calculate prices with time to expiry accounting for hours of current day;
         // if not, calculate 0 day expiry prices for contracts at 9:40 AM
         if ((dateGLOBAL.getHours() >= 10 && dateGLOBAL.getHours() <= 15) || (dateGLOBAL.getHours() === 9 && dateGLOBAL.getMinutes() >= 30)){
             
-            let t1 = new Trade(prices[prices.length-1], iv, iv, exp_time(`${dateGLOBAL.getHours()}:${dateGLOBAL.getMinutes()}`, days), indata[0]/100, reach[0]*percentage, min);
+            
+            let t1 = new Trade(prices[prices.length-1], iv, iv, exp_time(`${dateGLOBAL.getHours()}:${dateGLOBAL.getMinutes()}`, days), indata[0]/100.0, divyield, reach[0]*percentage, min);
             t1.loadHTML(11, 3);
             // t1.print();
             
         } else {
             
-            let t1 = new Trade(prices[prices.length-1], iv, iv, exp_time(`9:30`, days), indata[0]/100.0, reach[0]*percentage, min);
+            let t1 = new Trade(prices[prices.length-1], iv, iv, exp_time(`15:59`, days), indata[0]/100.0, divyield, reach[0]*percentage, min);
             t1.loadHTML(11, 3);
             // t1.print();
             
@@ -565,7 +568,7 @@ function quotes(nums, indata = []){
 setInterval(load_time, 1000);
 
 // fetches data from federal funds, which includes process to fetch and processes data from stock quotes
-get_data(federal_funds, rf_rate);
+get_data(treasury_yield, rf_rate);
 
 // fetches data from newsfeed
 get_data(news, newsfeed);
