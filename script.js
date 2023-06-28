@@ -80,6 +80,7 @@ function get_data(url, handling_function, indata = []){
             
         }) // end of .then
 
+    
         .then(data => {
           
             // Process and use the data as needed
@@ -90,14 +91,14 @@ function get_data(url, handling_function, indata = []){
             // function handles data, several handling functions are defined below for different input streams
             handling_function(data, indata);
             
-            
-      }) // end of .then
+        }) // end of .then
+    
 
-      .catch(error => {
+        .catch(error => {
           
-        console.error("Error:", error);
+            console.error("Error:", error);
           
-      }); // end of .catch
+        }); // end of .catch
     
     
 } // end of get_data function
