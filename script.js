@@ -227,7 +227,7 @@ function reload_rate(){
     
     let basicinfo = document.createElement('div');
     basicinfo.id = "basicinfo";
-    document.getElementById("par").appendChild(basicinfo);
+    document.getElementById("trading").appendChild(basicinfo);
     
     loadHTML([`1-month Federal Funds Rate as of ${rf_dateGLOBAL}: ${rf_rateGLOBAL}%`], 'basicinfo');
     
