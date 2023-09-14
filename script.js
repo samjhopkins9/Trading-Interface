@@ -27,8 +27,8 @@ let rf_rateGLOBAL = 0;
 
 // Textbox and event listener for symbol
 
-// adds "Trading" heading with textbox and button to top of trading section of document
-document.getElementById("trading").innerHTML += `<div id="tradingH"><h1>Trading</h1><input type="text" value="SPY" id="symbolinp"><button id="symbolbutton">Go</button></input></div>`;
+// adds "Calculator" heading with textbox and button to top of trading section of document
+document.getElementById("trading").innerHTML += `<div id="tradingH"><h1>Calculator</h1><input type="text" value="SPY" id="symbolinp"><button id="symbolbutton">Go</button></input></div>`;
 
 // defines style and spacing rules for header/textbox/button
 document.getElementById("tradingH").style.display = "flex";
@@ -85,7 +85,7 @@ function get_data(url, handling_function, indata = []){
           
             // Process and use the data as needed
                
-            // log data to console to see directly what comes from api
+            // log data to console to see what comes directly from api
             console.log(data);
             
             // function handles data, several handling functions are defined below for different input streams
@@ -363,6 +363,33 @@ function quotes(nums, indata = []){
     let child = document.createElement('div');
     child.id = "child";
     
+    
+    
+    // percslider controlling percentage of reach to capture
+        
+    let percslider = document.createElement("input");
+    percslider.type = "range";
+    percslider.min = "30";
+    percslider.max = "200";
+    percslider.step = "0.01";
+    percslider.value = "70";
+    percslider.id = "percslider";
+    
+    // percslider appended to basicinfo below other slider,
+    // handling function of other executes so information it affects appears above slider
+    let percentage = parseFloat(percslider.value);
+    
+    document.getElementById('basicinfo').appendChild(percslider);
+    
+    // event handler sets new value, clears the child element controlled by the slider, then reloads the HTML with the new value
+    percslider.addEventListener("input", function(event) {
+       
+        percslider.value = event.target.value;
+        clearHTML(child);
+        load_prices();
+
+    });
+    
     // sliderlabel for slider controlling number of minutes to trade
     
     let sliderlabel = document.createElement("p");
@@ -390,33 +417,6 @@ function quotes(nums, indata = []){
         load_prices();
 
     }); // end of event handler
-    
-    
-    
-    // percslider controlling percentage of reach to capture
-        
-    let percslider = document.createElement("input");
-    percslider.type = "range";
-    percslider.min = "30";
-    percslider.max = "200";
-    percslider.step = "0.01";
-    percslider.value = "70";
-    percslider.id = "percslider";
-    
-    // percslider appended to basicinfo below other slider,
-    // handling function of other executes so information it affects appears above slider
-    let percentage = parseFloat(percslider.value);
-    
-    document.getElementById('basicinfo').appendChild(percslider);
-    
-    // event handler sets new value, clears the child element controlled by the slider, then reloads the HTML with the new value
-    percslider.addEventListener("input", function(event) {
-       
-        percslider.value = event.target.value;
-        clearHTML(child);
-        load_prices();
-
-    });
     
     
     
@@ -502,7 +502,7 @@ function quotes(nums, indata = []){
         
         
         // updates text content for slider label
-        sliderlabel.textContent = `Minutes to trade: ${min}`;
+        sliderlabel.textContent = `Minutes of time decay: ${min}`;
         // updates text content for slider label
         ivsliderlabel.textContent = `Implied volatility of contracts: ${iv}%`;
         // updates text content for slider label
@@ -520,7 +520,7 @@ function quotes(nums, indata = []){
         childinfo.id = "childinfo";
         childinfo.innerHTML = ` <p>Average / SD ${min} minute reach: ${(reach[0]*100).toFixed(4)}% / ${(reach[1]*100).toFixed(4)}%</p>
                                 <p>(largest deviation from a pricepoint within the following ${min} minutes)</p>
-                                <p>Targeted movement: ${tgt.toFixed(4)}% over ${min} minutes (${percentage}% of average reach)</p>`;
+                                <p>Measured movement: ${tgt.toFixed(4)}% over ${min} minutes (${percentage}% of average reach)</p>`;
         
         
         // info controlled by minutes slider is deleted if already present
@@ -540,7 +540,8 @@ function quotes(nums, indata = []){
         // either for first time or after code has been cleared by event handler
         document.getElementById('basicinfo').appendChild(child);
         
-        let divyield = symbol == "SPY" ? 0.0151 : 0.0;
+        let divyield = symbol == "SPY" ? 0.0 : 0.0; // SPY dividend yield: 1.47% -- but results seem to be more accurate for dailies without dividend yield, hence ? 0 : 0
+        // if needed, this line can be used to add a dividend yield to the calculation
         
         // if within trading hours, calculate prices with time to expiry accounting for hours of current day;
         // if not, calculate 0 day expiry prices for contracts at 9:40 AM

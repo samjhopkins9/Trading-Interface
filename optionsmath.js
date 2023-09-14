@@ -215,7 +215,7 @@ function black_scholes_call(S, K, r, sigma, T, q) {
                          
     let nd1 = normcdf(d1(S, K, r, sigma, T, q));
     let nd2 = normcdf(d2(S, K, r, sigma, T, q));
-    return S * nd1 - K * Math.exp(-r * T) * nd2;
+    return Math.abs(S * nd1 - K * Math.exp(-r * T) * nd2);
     
 } // end of black_scholes_call function;
 
@@ -223,7 +223,7 @@ function black_scholes_put(S, K, r, sigma, T, q) {
                          
     let nd1 = normcdf(-d1(S, K, r, sigma, T, q));
     let nd2 = normcdf(-d2(S, K, r, sigma, T, q));
-    return K * Math.exp(-r * T) * nd2 - S * nd1;
+    return Math.abs(K * Math.exp(-r * T) * nd2 - S * nd1);
                          
 } // end of black_scholes_put function
 
@@ -253,14 +253,18 @@ class Strike {
 } // end of Strike class
 
                      
-
+// function returns a list of strike prices, with corresponding calls and puts, within a specified range of prices
 let ladder = (S, V1, V2, T, R, q, range) => {
         
     let l = [];
     
+    let c = 0;
     for (let i=Math.floor(S)-range; i<=Math.floor(S)+range; i++){
             
         l.push(new Strike(S, i, V1, V2, T, R, q));
+        // console.log(`${l[c].call_price.toFixed(2)}  ${l[c].put_price.toFixed(2)}; ${l[c].strike_price}`);
+        
+        c++;
             
     } // end of for loop
         
@@ -273,7 +277,7 @@ let ladder = (S, V1, V2, T, R, q, range) => {
 // returns time to expiry in hours, given the time of day and days to expiry of a contract
 let exp_time = (time, day) => {
         
-    let t = day*7.5;
+    let t = day*16;
     let add = 0.0;
         
         if (time[1] === ':'){
@@ -307,10 +311,10 @@ class Trade {
         V2 /= 100; // entered as percentage
         
         this.time_exp = T / 4032.0; // entered as hours, calculated as as fraction of option trading year
-        // 4032 = number of hours in a trading year = 16*252
+        // 4032 = number of hours in a trading year = 16*252 / 7.75*252 = 1953
         this.movement = m / 100.0; // entered as a percentage
         this.time = t / 241920.0; // entered as minutes, calculated as fraction of an option trading year
-        // 241920 = number of minutes in a trading year 60*16*252
+        // 241920 = number of minutes in a trading year 60*16*252 / 60*7.75*252 = 117180
         
         // console.log(`Inputs: ${S}, ${Math.floor(S)}, ${V1}, ${this.time_exp}, ${R}`);
         
@@ -338,6 +342,7 @@ class Trade {
                         this.initial_prices.push([l0[i].call_price.toFixed(2), l0[i].put_price.toFixed(2)]);
                         this.up_prices.push([l1[j].call_price.toFixed(2), l1[j].put_price.toFixed(2)]);
                         this.down_prices.push([l2[k].call_price.toFixed(2), l2[k].put_price.toFixed(2)]);
+                        continue;
                         
                     } // end of if
                     
@@ -398,12 +403,12 @@ class Trade {
             c1.innerHTML += `<td>${this.final_underlying[0]}</td>`;
             c1.innerHTML += `<td>${this.final_underlying[1]}</td>`;
             
-            c2.innerHTML = `<td>${this.strike_prices[i]}</td>`;
+            c2.innerHTML = `<td>${this.strike_prices[i-1]}</td>`; // offset strike price output because they were off by one in output to html
             c3.innerHTML = `<td>${this.initial_prices[i][0]}</td>`;
             c3.innerHTML += `<td>${this.up_prices[i][0]}</td>`;
             c3.innerHTML += `<td>${this.down_prices[i][0]}</td>`;
             
-            c4.innerHTML = `<td>${this.strike_prices[l-i+2]}</td>`;
+            c4.innerHTML = `<td>${this.strike_prices[l-i+1]}</td>`;
             c5.innerHTML = `<td>${this.initial_prices[l-i+2][1]}</td>`;
             c5.innerHTML += `<td>${this.up_prices[l-i+2][1]}</td>`;
             c5.innerHTML += `<td>${this.down_prices[l-i+2][1]}</td>`;
