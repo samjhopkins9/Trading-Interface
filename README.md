@@ -1,4 +1,4 @@
-# Trading Interface and Black-Scholes Options Price Calculator
+to# Trading Interface and Black-Scholes Options Price Calculator
 
     ## Description
     - This page displays news, a simple chart, and some basic information pertaining to a volatility of the given stock or ETF using minutely data over the last 2 weeks. It also uses the Black-Scholes formula to calculate the intrinsic price of options contracts at the underlying symbol's current price and plus or minus a certain amount after a specified amount of time decay (in minutes), with all other variables held equal. The user can adjust the minutes of time decay reflected in the prices.

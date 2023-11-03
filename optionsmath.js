@@ -39,7 +39,7 @@ function Reach(prices, min){
         
     } // end of for loop
     
-    vari /= r.length;
+    vari /= r.length-1;
     
     return [avg, Math.sqrt(vari)];
     
@@ -76,7 +76,7 @@ function SDreturns(prices){
     
     sd = Math.sqrt(variance);
     
-    let ratio = prices.length/14000 // 28000 minutes in full trading month; prices.length many represented in data
+    let ratio = prices.length/14000 // 14000 minutes in full 2-week trading period; prices.length many represented in data
     
     return (sd*Math.sqrt(ratio * 960 * 250));
     
@@ -235,18 +235,17 @@ function black_scholes_put(S, K, r, sigma, T, q) {
 // class stores a call and put price according to a set of the 5 given parameters
 class Strike {
     
-    constructor(S, K, V1, V2, T, R, q){
+    constructor(S, K, V, T, R, q){
         
         this.underlying_price = S;
         this.strike_price = K;
-        this.call_volatility = V1;
-        this.put_volatility = V2;
+        this.volatility = V;
         this.time = T;
         this.riskfree_rate = R;
         this.dividend = q;
         
-        this.call_price = black_scholes_call(S, K, R, V1, T, q);
-        this.put_price = black_scholes_put(S, K, R, V2, T, q);
+        this.call_price = black_scholes_call(S, K, R, V, T, q);
+        this.put_price = black_scholes_put(S, K, R, V, T, q);
         
     } // end of Strike constructor
     
@@ -254,14 +253,14 @@ class Strike {
 
                      
 // function returns a list of strike prices, with corresponding calls and puts, within a specified range of prices
-let ladder = (S, V1, V2, T, R, q, range) => {
+let ladder = (S, V, T, R, q, range) => {
         
     let l = [];
     
     let c = 0;
     for (let i=Math.floor(S)-range; i<=Math.floor(S)+range; i++){
             
-        l.push(new Strike(S, i, V1, V2, T, R, q));
+        l.push(new Strike(S, i, V, T, R, q));
         // console.log(`${l[c].call_price.toFixed(2)}  ${l[c].put_price.toFixed(2)}; ${l[c].strike_price}`);
         
         c++;
@@ -279,22 +278,23 @@ let exp_time = (time, day) => {
         
     let t = day*16;
     let add = 0.0;
+    let hour, minute;
         
         if (time[1] === ':'){
             
-            let hour = `${time[0]}`
-            let minute = (time[3]) ? `${time[2]}${time[3]}` : `${time[2]}`;
-            add = 16.15 - (parseFloat(hour) + (parseFloat(minute)/60.0));
+            hour = `${time[0]}`;
+            minute = (time[3]) ? `${time[2]}${time[3]}` : `${time[2]}`;
+        }
+        
+        else {
             
-        } else {
-            
-            let hour = `${time[0]}${time[1]}`;
-            let minute = (time[4]) ? `${time[3]}${time[4]}` : `${time[3]}`;
-            add = 16.15 - (parseFloat(hour) + (parseFloat(minute)/60.0));
+            hour = `${time[0]}${time[1]}`;
+            minute = (time[4]) ? `${time[3]}${time[4]}` : `${time[3]}`;
             
         } // end of if else
     
     // console.log(add+t);
+    add = 16.15 - (parseFloat(hour) + (parseFloat(minute)/60.0));
         
     return add+t;
         
@@ -303,12 +303,11 @@ let exp_time = (time, day) => {
                      
                      
 // class stores pricing information for a set of call and put contracts for a symbol with specified parameters at a given price, a specified percentage higher over a certain time period, and the same lower
-class Trade {
+class Ladder {
         
-    constructor(S, V1, V2, T, R, q, m, t){
+    constructor(S, V, T, R, q, m, t){
         
-        V1 /= 100; // entered as percentage
-        V2 /= 100; // entered as percentage
+        V /= 100; // entered as percentage
         
         this.time_exp = T / 4032.0; // entered as hours, calculated as as fraction of option trading year
         // 4032 = number of hours in a trading year = 16*252 / 7.75*252 = 1953
@@ -326,9 +325,9 @@ class Trade {
         this.up_prices = [[]];
         this.down_prices = [[]];
         
-        var l0 = ladder(S, V1, V2, this.time_exp, R, q, 10);
-        var l1 = ladder(S+(S*this.movement), V1, V2, this.time_exp-this.time, R, q, 10);
-        var l2 = ladder(S-(S*this.movement), V1, V2, this.time_exp-this.time, R, q, 10);
+        var l0 = ladder(S, V, this.time_exp, R, q, 10);
+        var l1 = ladder(S+(S*this.movement), V, this.time_exp-this.time, R, q, 10);
+        var l2 = ladder(S-(S*this.movement), V, this.time_exp-this.time, R, q, 10);
         
         for (let i=0; i<l0.length; i++){
             
@@ -426,3 +425,4 @@ class Trade {
         
         
 } // end of pairs class
+                    

@@ -10,9 +10,9 @@ const interval = "1min";
 
 // ticker prices may be changed by program; federal funds rate is constant;
 // news may be changed by program, and will fetch general news if given the symbols of two particular high-option-volume index ETFs, and stock-specific news otherwise
-let ticker_prices = `https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=${symbol}&interval=${interval}&outputsize=full&apikey=DO68WZE2817TOTSX`;
-const treasury_yield = `https://www.alphavantage.co/query?function=TREASURY_YIELD&interval=monthly&maturity=3month&apikey=DO68WZE2817TOTSX`;
-let news = (symbol === "SPY") || (symbol === "QQQ") ? `https://www.alphavantage.co/query?function=NEWS_SENTIMENT&apikey=DO68WZE2817TOTSX` : `https://www.alphavantage.co/query?function=NEWS_SENTIMENT&tickers=${symbol}&apikey=DO68WZE2817TOTSX`;
+let ticker_prices = `https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=${symbol}&interval=${interval}&outputsize=full&entitlement=delayed&apikey=YGJ9697CIL14CGVU`;
+const treasury_yield = `https://www.alphavantage.co/query?function=TREASURY_YIELD&interval=monthly&maturity=3month&apikey=YGJ9697CIL14CGVU`;
+let news = (symbol === "SPY") || (symbol === "QQQ") ? `https://www.alphavantage.co/query?function=NEWS_SENTIMENT&apikey=YGJ9697CIL14CGVU` : `https://www.alphavantage.co/query?function=NEWS_SENTIMENT&tickers=${symbol}&apikey=YGJ9697CIL14CGVU`;
 
 // global date when taking current time in black-scholes calculation
 const dateGLOBAL = new Date();
@@ -20,9 +20,6 @@ const dateGLOBAL = new Date();
 // risk-free interest rate and date from most recent increase saved as global variables
 let rf_dateGLOBAL = 0;
 let rf_rateGLOBAL = 0;
-
-
-
 
 
 // Textbox and event listener for symbol
@@ -548,25 +545,171 @@ function quotes(nums, indata = []){
         if ((dateGLOBAL.getHours() >= 10 && dateGLOBAL.getHours() <= 15) || (dateGLOBAL.getHours() === 9 && dateGLOBAL.getMinutes() >= 30)){
             
             
-            let t1 = new Trade(prices[prices.length-1], iv, iv, exp_time(`${dateGLOBAL.getHours()}:${dateGLOBAL.getMinutes()}`, days), indata[0]/100.0, divyield, reach[0]*percentage, min);
+            let t1 = new Ladder(prices[prices.length-1], iv, exp_time(`${dateGLOBAL.getHours()}:${dateGLOBAL.getMinutes()}`, days), indata[0]/100.0, divyield, reach[0]*percentage, min);
             t1.loadHTML(11, 3);
             // t1.print();
             
         } else {
             
-            let t1 = new Trade(prices[prices.length-1], iv, iv, exp_time(`15:59`, days), indata[0]/100.0, divyield, reach[0]*percentage, min);
+            let t1 = new Ladder(prices[prices.length-1], iv, exp_time(`15:59`, days), indata[0]/100.0, divyield, reach[0]*percentage, min);
             t1.loadHTML(11, 3);
             // t1.print();
             
         } // end of if-else
         
+        
+        // portion of code to load ladders from now back a specified number of entries onto a list, then test signals of buying and selling
+        function loadLadders(length){
+            
+            let Ladders = [];
+                
+            for (let i=prices.length-length; i<prices.length; i++){
+                    
+                let hour_minute = keys[i].substring(11, 16);
+                let hour = hour_minute[0] === '0' ? hour_minute.substring(1, 2) : hour_minute.substring(0, 2);
+                hour_minute = hour_minute[0] === '0' ? hour_minute.substring(1) : hour_minute;
+                // console.log(keys[i]);
+                // console.log(hour);
+                // console.log(hour_minute);
+                    
+                
+                 if (hour >= 9 && hour <= 15) {
+                            
+                    let t1 = new Ladder(prices[i], iv, exp_time(hour_minute, days), indata[0]/100.0, divyield, reach[0]*percentage, min);
+                    // t1.print();
+                    Ladders.push(t1);
+                        
+                 } // end if
+                
+                    
+            } // end for
+            
+            return Ladders;
+                
+        } // end func
+         
+        
+        // loadLadders(2000);
+        
+        class miniTrade {
+            
+            constructor(price, strike, cP){
+                
+                this.des = cP === 0 ? "call" : "put";
+                
+                console.log(`Bought ${strike} ${this.des} option at ${price}`);
+                
+                this.strike = strike;
+                this.buy_price = price;
+                this.cP = cP;
+                this.tgt = null;
+                this.sell_price = null;
+                this.pL = null;
+                this.W = false;
+                
+            }
+            
+            sell (price) {
+                
+                this.sell_price = price;
+                this.pL = this.sell_price - this.buy_price;
+                if (this.pL >= 0){
+                    
+                    this.W = true;
+                    
+                }
+                
+                console.log(`Sold ${this.strike} ${this.des} option at ${price}`);
+                console.log(`P/L: \$${this.pL}`);
+                
+            }
+        }
+        
+        function runTest(length){
+            
+            let Ladders = loadLadders(length);
+            let mTs = [];
+            let pL = 0;
+            
+            let i = prices.length-length;
+            
+            for (let L of Ladders){
+                
+                let cp = null;
+                if (rsi[i] > 55){
+                    
+                    cp = 1;
+                    
+                } else if (rsi[i] < 45){
+                    
+                    cp = 0;
+                    
+                } else {
+                    
+                    cp = -1;
+                    
+                } // end if-else
+                
+                
+                let k = 0;
+                // for each price in ladder, checks if sell or buy should be executed of the option at that price
+                for (let P of L.initial_prices){
+                    
+                    // selling stage -- for each price in curent trades, check if strike matches one being checked, and if sell condition has been reached;
+                    // if so, sell it and remove it from the list of current open trades.
+                    let j = 0;
+                    for (let T of mTs){
+                        
+                        if (L.strike_prices[k] === T.strike && (P[T.cP] >= (1+T.tgt) * T.buy_price || P[T.cP] <= (1-T.tgt*3) * T.buy_price) ){
+                            
+                            T.sell(P[cp]);
+                            pL += T.pL;
+                            mTs.splice(j, 1);
+                            
+                            console.log(`Total P/L: \$${pL}`);
+                            
+                        }
+                        
+                        j++;
+                        
+                        
+                    }
+                    
+                    // if no action to buy, or current trades are at limit, break
+                    if (cp === -1 || mTs.length >= 5) { continue; }
+                    
+                    // buying stage -- if action to buy, find contracts of appropriate price and open.
+                    if (P[cp] > 0.30 && P[cp] < 0.40){
+                        
+                        let mT = new miniTrade(P[cp], L.strike_prices[k], cp);
+                        mT.tgt = cp === 0 ? L.up_prices[cp] - P[cp] : L.down_prices[cp] - P[cp];
+                        mT.tgt /= P[cp];
+                        mTs.push(mT);
+                        break;
+                        
+                    }
+                    
+                    k++;
+                    
+                } // end for
+                
+                i++;
+                
+            } // end for
+            
+            
+        } // end func
+        
+        // runTest(7000);
+        // console.log(prices.length);
+
 
     } // end of load_prices function
     
         
 } // end of quotes function
                      
-                  
+
 
 
 
@@ -580,7 +723,6 @@ get_data(treasury_yield, rf_rate);
 
 // fetches data from newsfeed
 get_data(news, newsfeed);
-
 
 
 // reloads interest rate into DOM without re-fetching data, then
